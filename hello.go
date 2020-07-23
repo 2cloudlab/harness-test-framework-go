@@ -23,7 +23,6 @@ func LambdaHandler(ctx context.Context, params EventParams) (int, error) {
 		FunctionName:   aws.String(params.LambdaFunctionName),
 		InvocationType: aws.String("Event"),
 		Payload:        []byte(params.DynamoDBName),
-		//Qualifier:      aws.String("1"),
 	}
 	for i := 0; i < params.Iteration; i++ {
 		_, err := svc.Invoke(input)
