@@ -7,7 +7,9 @@ import (
 )
 
 func LambdaHandler(ctx context.Context, params EventParams) (int, error) {
-	fmt.Println("Hello World!")
+	for i := 0; i < params.CountInSingleInstance; i++ {
+		fmt.Println("Hello World!")
+	}
 	return 0, nil
 }
 
