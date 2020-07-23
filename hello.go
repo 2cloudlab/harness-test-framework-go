@@ -13,6 +13,8 @@ import (
 type EventParams struct {
 	LambdaFunctionName string `json:"functionName"`
 	DynamoDBName       string `json:"dynamoDBName"`
+	Iteration          int `json:"iteration"`
+	PayloadInJson      string `json:"payloadInJson"`
 }
 
 func LambdaHandler(ctx context.Context, params EventParams) (int, error) {
@@ -23,7 +25,9 @@ func LambdaHandler(ctx context.Context, params EventParams) (int, error) {
 		Payload:        []byte(params.DynamoDBName),
 		//Qualifier:      aws.String("1"),
 	}
-	_, err := svc.Invoke(input)
+	for i := 0; i < params.Iteration; i++ {
+		_, err := svc.Invoke(input)
+	}
 	if err != nil {
 		if aerr, ok := err.(awserr.Error); ok {
 			switch aerr.Code() {
