@@ -11,13 +11,6 @@ import (
 	"github.com/aws/aws-sdk-go/service/lambda"
 )
 
-type EventParams struct {
-	LambdaFunctionName    string `json:"functionName"`
-	DynamoDBName          string `json:"dynamoDBName"`
-	Iteration             int    `json:"iteration"`
-	CountInSingleInstance int    `json:"countInSingleInstance"`
-}
-
 func recordError(err error) {
 	if aerr, ok := err.(awserr.Error); ok {
 		switch aerr.Code() {
