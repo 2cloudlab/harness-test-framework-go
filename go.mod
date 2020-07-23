@@ -1,4 +1,4 @@
-module github.com/2cloudlab/hello
+module github.com/2cloudlab/harness-test-framework-go
 
 go 1.13
 
