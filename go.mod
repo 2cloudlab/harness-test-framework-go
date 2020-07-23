@@ -1,4 +1,4 @@
-module github.com/2cloudlab/harness-test-framework-go
+module github.com/2cloudlab/test-harness-framework-go
 
 go 1.13
 
