@@ -34,6 +34,13 @@ locals {
             "Resource": [
                 "arn:aws:logs:${local.region_name}:${local.account_id}:log-group:/aws/lambda/${local.test_harness_function_name}:*"
             ]
+        },
+        {
+            "Action": [
+                "lambda:InvokeFunction"
+            ],
+            "Resource": "arn:aws:lambda:${local.region_name}:${local.account_id}:function:${var.worker_handler_zip_file}*",
+            "Effect": "Allow"
         }
     ]
 }
