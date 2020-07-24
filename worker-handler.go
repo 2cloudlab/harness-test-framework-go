@@ -2,20 +2,23 @@ package main
 
 import (
 	"context"
-	"fmt"
-	"time"
 
 	lambda_context "github.com/aws/aws-lambda-go/lambda"
 )
 
+type Performancer interface {
+	Init()
+	Start(ctx context.Context, params EventParams) []byte
+}
+
 func LambdaHandler(ctx context.Context, params EventParams) (int, error) {
-	for i := 0; i < params.CountInSingleInstance; i++ {
-		time.Sleep(2 * time.Second)
-		fmt.Println("Hello World!")
-	}
+	performer.Start(ctx, params)
 	return 0, nil
 }
 
+var performer = S3Performancer{}
+
 func main() {
+	performer.Init()
 	lambda_context.Start(LambdaHandler)
 }

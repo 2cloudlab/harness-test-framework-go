@@ -4,7 +4,9 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+
 	lambda_context "github.com/aws/aws-lambda-go/lambda"
+	"github.com/aws/aws-lambda-go/lambdacontext"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/aws/session"
@@ -77,8 +79,10 @@ func recordError(err error) {
 }
 
 func LambdaHandler(ctx context.Context, params EventParams) (int, error) {
-	payLoadInJson, _ := json.Marshal(params)
+	lc, _ := lambdacontext.FromContext(ctx)
+	params.RequestID = lc.AwsRequestID
 	svc := lambda.New(session.New())
+	payLoadInJson, _ := json.Marshal(params)
 	input := &lambda.InvokeInput{
 		FunctionName:   aws.String(params.LambdaFunctionName),
 		InvocationType: aws.String("Event"),
