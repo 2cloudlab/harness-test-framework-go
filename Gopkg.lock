@@ -15,10 +15,11 @@
   version = "v1.18.0"
 
 [[projects]]
-  digest = "1:1f6308747fe57fcb59f360ab2e6d8ad3a16e25cf54d03426b3df50ca230faa03"
+  digest = "1:4f9dbb47826e24dbbe7a2c94120a5186031700d850e8cf30ccd307e238a93f8b"
   name = "github.com/aws/aws-sdk-go"
   packages = [
     "aws",
+    "aws/arn",
     "aws/awserr",
     "aws/awsutil",
     "aws/client",
@@ -38,6 +39,7 @@
     "aws/signer/v4",
     "internal/context",
     "internal/ini",
+    "internal/s3err",
     "internal/sdkio",
     "internal/sdkmath",
     "internal/sdkrand",
@@ -45,15 +47,21 @@
     "internal/shareddefaults",
     "internal/strings",
     "internal/sync/singleflight",
+    "private/checksum",
     "private/protocol",
+    "private/protocol/eventstream",
+    "private/protocol/eventstream/eventstreamapi",
     "private/protocol/json/jsonutil",
     "private/protocol/jsonrpc",
     "private/protocol/query",
     "private/protocol/query/queryutil",
     "private/protocol/rest",
     "private/protocol/restjson",
+    "private/protocol/restxml",
     "private/protocol/xml/xmlutil",
     "service/lambda",
+    "service/s3",
+    "service/s3/internal/arn",
     "service/sts",
     "service/sts/stsiface",
   ]
@@ -73,10 +81,12 @@
   analyzer-version = 1
   input-imports = [
     "github.com/aws/aws-lambda-go/lambda",
+    "github.com/aws/aws-lambda-go/lambdacontext",
     "github.com/aws/aws-sdk-go/aws",
     "github.com/aws/aws-sdk-go/aws/awserr",
     "github.com/aws/aws-sdk-go/aws/session",
     "github.com/aws/aws-sdk-go/service/lambda",
+    "github.com/aws/aws-sdk-go/service/s3",
   ]
   solver-name = "gps-cdcl"
   solver-version = 1

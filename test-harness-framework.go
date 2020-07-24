@@ -12,7 +12,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/lambda"
 )
 
-func LambdaHandler(ctx context.Context, params EventParams) (int, error) {
+func LambdaHandler(ctx context.Context, params EventParams) (string, error) {
 	lc, _ := lambdacontext.FromContext(ctx)
 	params.RequestID = lc.AwsRequestID
 	svc := lambda.New(session.New())
@@ -28,7 +28,7 @@ func LambdaHandler(ctx context.Context, params EventParams) (int, error) {
 			recordError(err)
 		}
 	}
-	return 0, nil
+	return lc.AwsRequestID, nil
 }
 
 func main() {

@@ -80,3 +80,11 @@ func recordError(err error) {
 		fmt.Println(err.Error())
 	}
 }
+
+func getObjectName(i int) string {
+	return fmt.Sprintf("test-data/object-%d-1024-KB", i)
+}
+
+func getReportName(prefix string, key string) string {
+	return fmt.Sprintf("%s/%s", prefix, key)
+}

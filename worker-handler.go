@@ -7,6 +7,7 @@ import (
 	"os"
 
 	lambda_context "github.com/aws/aws-lambda-go/lambda"
+	"github.com/aws/aws-lambda-go/lambdacontext"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/aws/session"
@@ -45,7 +46,8 @@ func Record(key string, value []byte) {
 }
 
 func LambdaHandler(ctx context.Context, params EventParams) (int, error) {
-	Record("", performer.Start(ctx, params))
+	lc, _ := lambdacontext.FromContext(ctx)
+	Record(getReportName(params.RequestID, lc.AwsRequestID), performer.Start(ctx, params))
 	return 0, nil
 }
 

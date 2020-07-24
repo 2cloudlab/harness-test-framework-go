@@ -5,7 +5,7 @@
 1. Build from source
 
 ```bash
-go build worker-handler.go shared-data-struct.go
+go build worker-handler.go shared-data-struct.go S3Performancer.go
 ```
 
 2. Zip the generated executable bin
