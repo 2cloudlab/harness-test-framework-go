@@ -118,6 +118,8 @@ resource "aws_lambda_function" "test_harness_lambda" {
   role          = aws_iam_role.role_for_test_harness.arn
   handler       = local.test_harness_function_name
   timeout = local.time_out_in_second
+  memory_size = var.memory_size_in_MB
+
   # The filebase64sha256() function is available in Terraform 0.11.12 and later
   # For Terraform 0.11.11 and earlier, use the base64sha256() function and the file() function:
   # source_code_hash = "${base64sha256(file("lambda_function_payload.zip"))}"
@@ -168,6 +170,7 @@ resource "aws_lambda_function" "worker_handler_lambda" {
   role          = aws_iam_role.role_for_worker_handler.arn
   handler       = var.worker_handler_zip_file
   timeout = local.time_out_in_second
+  memory_size = var.memory_size_in_MB
 
   # The filebase64sha256() function is available in Terraform 0.11.12 and later
   # For Terraform 0.11.11 and earlier, use the base64sha256() function and the file() function:
