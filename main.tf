@@ -15,6 +15,7 @@ data "aws_region" "current" {}
 locals {
   account_id = "${data.aws_caller_identity.current.account_id}"
   region_name = "${data.aws_region.current.name}"
+  time_out_in_second = 900
   test_harness_function_name = "test-harness-framework"
   policy_for_test_harness = <<POLICY
 {
@@ -63,6 +64,13 @@ POLICY
             "Resource": [
                 "arn:aws:logs:${local.region_name}:${local.account_id}:log-group:/aws/lambda/${var.worker_handler_zip_file}:*"
             ]
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+            "s3:PutObject"
+            ],
+            "Resource": "arn:aws:s3:::${var.bucket_name}/*"
         }
     ]
 }
@@ -109,7 +117,7 @@ resource "aws_lambda_function" "test_harness_lambda" {
   function_name = local.test_harness_function_name
   role          = aws_iam_role.role_for_test_harness.arn
   handler       = local.test_harness_function_name
-
+  timeout = local.time_out_in_second
   # The filebase64sha256() function is available in Terraform 0.11.12 and later
   # For Terraform 0.11.11 and earlier, use the base64sha256() function and the file() function:
   # source_code_hash = "${base64sha256(file("lambda_function_payload.zip"))}"
@@ -159,12 +167,24 @@ resource "aws_lambda_function" "worker_handler_lambda" {
   function_name = var.worker_handler_zip_file
   role          = aws_iam_role.role_for_worker_handler.arn
   handler       = var.worker_handler_zip_file
+  timeout = local.time_out_in_second
 
   # The filebase64sha256() function is available in Terraform 0.11.12 and later
   # For Terraform 0.11.11 and earlier, use the base64sha256() function and the file() function:
   # source_code_hash = "${base64sha256(file("lambda_function_payload.zip"))}"
   source_code_hash = filebase64sha256("${var.worker_handler_zip_file}.zip")
 
+  environment {
+    variables = {
+      BUCKET_NAME = var.bucket_name
+    }
+  }
+
   # check out the detail runtime from here https://docs.aws.amazon.com/lambda/latest/dg/API_CreateFunction.html#SSS-CreateFunction-request-Runtime
   runtime = "go1.x"
+}
+
+resource "aws_s3_bucket" "b" {
+  bucket = var.bucket_name
+  acl    = "private"
 }

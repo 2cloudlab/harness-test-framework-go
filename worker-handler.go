@@ -1,9 +1,16 @@
 package main
 
 import (
+	"bytes"
 	"context"
+	"fmt"
+	"os"
 
 	lambda_context "github.com/aws/aws-lambda-go/lambda"
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/awserr"
+	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/s3"
 )
 
 type Performancer interface {
@@ -11,12 +18,36 @@ type Performancer interface {
 	Start(ctx context.Context, params EventParams) []byte
 }
 
-func LambdaHandler(ctx context.Context, params EventParams) (int, error) {
-	performer.Start(ctx, params)
-	return 0, nil
+var performer = S3Performancer{}
+
+func Record(key string, value []byte) {
+	svc := s3.New(session.New())
+	input := &s3.PutObjectInput{
+		Body:   bytes.NewReader(value),
+		Bucket: aws.String(os.Getenv("BUCKET_NAME")),
+		Key:    aws.String(key),
+	}
+
+	_, err := svc.PutObject(input)
+	if err != nil {
+		if aerr, ok := err.(awserr.Error); ok {
+			switch aerr.Code() {
+			default:
+				fmt.Println(aerr.Error())
+			}
+		} else {
+			// Print the error, cast err to awserr.Error to get the Code and
+			// Message from an error.
+			fmt.Println(err.Error())
+		}
+		return
+	}
 }
 
-var performer = S3Performancer{}
+func LambdaHandler(ctx context.Context, params EventParams) (int, error) {
+	Record("", performer.Start(ctx, params))
+	return 0, nil
+}
 
 func main() {
 	performer.Init()
