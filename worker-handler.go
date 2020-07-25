@@ -18,7 +18,7 @@ type Performancer interface {
 	Start(ctx context.Context, params EventParams) []byte
 }
 
-var performer = S3Performancer{}
+var performer *Performancer
 
 func Record(key string, value []byte) {
 	input := &s3.PutObjectInput{
@@ -44,13 +44,26 @@ func Record(key string, value []byte) {
 }
 
 func LambdaHandler(ctx context.Context, params EventParams) (int, error) {
+	if performer == nil {
+		fmt.Println("Init performancer first time")
+		classes := map[string]func() Performancer{
+			"S3Performancer": func() Performancer {
+				return S3Performancer{}
+			},
+			"DefaultPerformancer": func() Performancer {
+				return DefaultPerformancer{}
+			},
+		}
+		tmp := classes[params.ProfileName]()
+		performer = &tmp
+		(*performer).Init()
+	}
 	lc, _ := lambdacontext.FromContext(ctx)
-	Record(getReportName(params.RequestID, lc.AwsRequestID), performer.Start(ctx, params))
+	Record(getReportName(params.RequestID, lc.AwsRequestID), (*performer).Start(ctx, params))
 	return 0, nil
 }
 
 func main() {
 	init_shared_resource()
-	performer.Init()
 	lambda_context.Start(LambdaHandler)
 }

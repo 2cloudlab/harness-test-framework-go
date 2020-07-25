@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"os"
 	"sort"
 	"strings"
 	"time"
@@ -44,7 +45,8 @@ func upload() {
 
 func generate_report(prefix []byte) {
 	// get report units from S3
-	report_units := downloadByPrefix(g_bucket_name, string(prefix[:]))
+	prefixInStr := string(prefix[:])
+	report_units := downloadByPrefix(g_bucket_name, prefixInStr)
 	if len(report_units) == 0 {
 		return
 	}
@@ -100,7 +102,9 @@ func generate_report(prefix []byte) {
 		p99, _ := stats.Percentile(headersToMap[key], 99)
 		max := headersToMap[key][0]
 		single_metric_stats_header := fmt.Sprint("|%s %s %s %s %s %s %s %s", "avg", "min", "p25", "p50", "p75", "p90", "p99", "max")
+		buffer.WriteString(single_metric_stats_header)
 		single_metric_stats := fmt.Sprint("|%s %s %s %s %s %s %s %s", avg, min, p25, p50, p75, p90, p99, max)
+		buffer.WriteString(single_metric_stats)
 		flat_data = append(flat_data, headersToMap[key]...)
 		record_number = len(headersToMap[key])
 	}
@@ -117,29 +121,46 @@ func generate_report(prefix []byte) {
 	}
 
 	d1 := []byte(strings.Trim(buffer.String(), "\n"))
-	ioutil.WriteFile("report.csv", d1, 0644)
+	ioutil.WriteFile(fmt.Sprint("report-%s.csv", prefixInStr), d1, 0644)
 }
 
+var g_bucket_name string
+
 func main() {
+	if len(os.Args) < 2 {
+		fmt.Println("Please provide bucket name, for example, enter the following command:")
+		fmt.Println("./auto-run <your-bucket-name>")
+		return
+	}
+	g_bucket_name = os.Args[1]
 	init_shared_resource()
 	// upload data to S3
 	upload()
 	// launch Lambda Function
-	params := EventParams{Iteration: 5, LambdaFunctionName: "worker-handler", CountInSingleInstance: 1}
-	payLoadInJson, _ := json.Marshal(params)
-	input := &lambda.InvokeInput{
-		FunctionName: aws.String("test-harness-framework"),
-		Payload:      payLoadInJson,
+	params := []EventParams{
+		EventParams{Iteration: 5, LambdaFunctionName: "worker-handler", ProfileName: "S3Performancer", CountInSingleInstance: 1},
+		EventParams{Iteration: 10, LambdaFunctionName: "worker-handler", ProfileName: "EmptyPerformancer", CountInSingleInstance: 1},
 	}
-	result, err := g_lambda_service.Invoke(input)
-	if err != nil {
-		recordError(err)
-		return
+	results := [][]byte{}
+	for _, p := range params {
+		payLoadInJson, _ := json.Marshal(p)
+		input := &lambda.InvokeInput{
+			FunctionName: aws.String("test-harness-framework"),
+			Payload:      payLoadInJson,
+		}
+		result, err := g_lambda_service.Invoke(input)
+		if err != nil {
+			recordError(err)
+			continue
+		}
+		results = append(results, result.Payload)
 	}
 
 	//wait 15 minutes
 	time.Sleep(15 * time.Minute)
 
 	//generate report
-	generate_report(result.Payload)
+	for _, item := range results {
+		generate_report(item)
+	}
 }

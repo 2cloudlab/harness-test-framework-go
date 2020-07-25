@@ -5,6 +5,8 @@ import (
 	"fmt"
 )
 
+// S3 performancer
+
 type S3Performancer struct {
 }
 
@@ -16,4 +18,16 @@ func (s3P S3Performancer) Start(ctx context.Context, params EventParams) []byte 
 }
 
 func (s3P S3Performancer) Init() {
+}
+
+// default performancer
+
+type DefaultPerformancer struct {
+}
+
+func (s3P DefaultPerformancer) Start(ctx context.Context, params EventParams) []byte {
+	return []byte("")
+}
+
+func (s3P DefaultPerformancer) Init() {
 }

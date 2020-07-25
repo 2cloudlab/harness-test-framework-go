@@ -14,7 +14,7 @@ import (
 type EventParams struct {
 	RequestID             string `json:"requestID"`
 	LambdaFunctionName    string `json:"functionName"`
-	DynamoDBName          string `json:"dynamoDBName"`
+	ProfileName           string `json:"profileName"`
 	Iteration             int    `json:"iteration"`
 	CountInSingleInstance int    `json:"countInSingleInstance"`
 	RawJson               string `json:"rawJson"`
@@ -125,12 +125,10 @@ func downloadByPrefix(bucket string, prefix string) [][]byte {
 var g_s3_service *s3.S3
 var g_s3_downloader *s3manager.Downloader
 var g_lambda_service *lambda.Lambda
-var g_bucket_name string
 
 func init_shared_resource() {
 	sess := session.New()
 	g_s3_service = s3.New(sess)
 	g_s3_downloader = s3manager.NewDownloader(sess)
 	g_lambda_service = lambda.New(sess)
-	g_bucket_name = "2cloudlab-performance-benchmark-bucket"
 }
