@@ -92,9 +92,10 @@ func generate_report(prefix []byte) {
 	// do stats such as mean, p99, min etc.
 	fmt.Println("do stats such as mean, p99, min etc. ...")
 	flat_data := []float64{}
-	record_number := 0
+	record_number := len(headersToMap[headers[0]])
 	headers_number := len(headers)
 	var statBuffer strings.Builder
+	statBuffer.WriteString(fmt.Sprintf("metrics,%s,%s,%s,%s,%s,%s,%s,%s\n", "avg", "min", "p25", "p50", "p75", "p90", "p99", "max"))
 	for _, key := range headers {
 		avg, _ := stats.Mean(headersToMap[key])
 		min := headersToMap[key][len(headersToMap[key])-1]
@@ -104,12 +105,9 @@ func generate_report(prefix []byte) {
 		p90, _ := stats.Percentile(headersToMap[key], 90)
 		p99, _ := stats.Percentile(headersToMap[key], 99)
 		max := headersToMap[key][0]
-		single_metric_stats_header := fmt.Sprintf("|%s %s %s %s %s %s %s %s", "avg", "min", "p25", "p50", "p75", "p90", "p99", "max")
-		statBuffer.WriteString(single_metric_stats_header)
-		single_metric_stats := fmt.Sprintf("|%d %d %d %d %d %d %d %d", avg, min, p25, p50, p75, p90, p99, max)
-		statBuffer.WriteString(single_metric_stats)
+
+		statBuffer.WriteString(fmt.Sprintf("%s,%f,%f,%f,%f,%f,%f,%f,%f\n", key, avg, min, p25, p50, p75, p90, p99, max))
 		flat_data = append(flat_data, headersToMap[key]...)
-		record_number = len(headersToMap[key])
 	}
 
 	// generate report
@@ -146,14 +144,8 @@ func main() {
 	upload()
 	// launch Lambda Function
 	params := []EventParams{
-		EventParams{
-			Iteration:             5,
-			LambdaFunctionName:    "worker-handler",
-			ProfileName:           "S3Performancer",
-			CountInSingleInstance: 2,
-			RawJson:               `{ "FileSize" : 1}`,
-		},
-		//EventParams{Iteration: 10, LambdaFunctionName: "worker-handler", ProfileName: "EmptyPerformancer", CountInSingleInstance: 1},
+		//EventParams{Iteration:             5,LambdaFunctionName:    "worker-handler",ProfileName:           "DefaultPerformancer", CountInSingleInstance: 2,},
+		EventParams{Iteration: 5, LambdaFunctionName: "worker-handler", ProfileName: "S3Performancer", CountInSingleInstance: 1, RawJson: `{ "FileSize" : 1}`},
 	}
 	fmt.Println("Start ...")
 	results := [][]byte{}

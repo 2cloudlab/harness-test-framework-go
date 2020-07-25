@@ -43,21 +43,29 @@ func Record(key string, value []byte) {
 	}
 }
 
-func LambdaHandler(ctx context.Context, params EventParams) (int, error) {
-	if performer == nil {
-		fmt.Println("Init performancer first time")
-		classes := map[string]func() Performancer{
-			"S3Performancer": func() Performancer {
-				return S3Performancer{}
-			},
-			"DefaultPerformancer": func() Performancer {
-				return DefaultPerformancer{}
-			},
-		}
-		tmp := classes[params.ProfileName]()
-		performer = &tmp
-		(*performer).Init()
+var performers map[string]*Performancer
+
+func getPerformer(name string) *Performancer {
+	if val, ok := performers[name]; ok {
+		return val
 	}
+	fmt.Println("Init performancer first time")
+	classes := map[string]func() Performancer{
+		"S3Performancer": func() Performancer {
+			return S3Performancer{}
+		},
+		"DefaultPerformancer": func() Performancer {
+			return DefaultPerformancer{}
+		},
+	}
+	tmp := classes[name]()
+	tmp.Init()
+	performers[name] = &tmp
+	return performers[name]
+}
+
+func LambdaHandler(ctx context.Context, params EventParams) (int, error) {
+	performer = getPerformer(params.ProfileName)
 	lc, _ := lambdacontext.FromContext(ctx)
 	Record(getReportName(params.RequestID, lc.AwsRequestID), (*performer).Start(ctx, params))
 	return 0, nil

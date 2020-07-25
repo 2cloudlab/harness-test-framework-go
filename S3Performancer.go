@@ -1,16 +1,81 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
 	"math/rand"
+	"os"
 	"time"
+
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/service/s3"
 )
 
 // S3 performancer
-
 type S3Performancer struct {
+}
+
+func (s3P S3Performancer) Start(ctx context.Context, params EventParams) []byte {
+	m := map[string]interface{}{}
+	err := json.Unmarshal([]byte(params.RawJson), &m)
+	if err != nil {
+		recordError(err)
+		return []byte{}
+	}
+	object_level := int(m["FileSize"].(float64))
+	sample_data_key := getObjectName(object_level)
+	testTasks := make(chan int, params.CountInSingleInstance)
+	samplesCount := 100
+	samples := make(chan int, samplesCount)
+	for g := 0; g < params.CountInSingleInstance; g++ {
+		go func(tasks <-chan int, results chan<- int) {
+			for range tasks {
+				result, _ := g_s3_service.GetObject(&s3.GetObjectInput{
+					Bucket: aws.String(os.Getenv("BUCKET_NAME")),
+					Key:    aws.String(sample_data_key),
+				})
+
+				buf := new(bytes.Buffer)
+				buf.ReadFrom(result.Body)
+
+				// if a request fails, exit
+				if err != nil {
+					recordError(err)
+					panic("Failed to get object: " + err.Error())
+				}
+
+				results <- 1
+			}
+		}(testTasks, samples)
+	}
+
+	benchmarkTimer := time.Now()
+
+	for i := 0; i < samplesCount; i++ {
+		testTasks <- i
+	}
+
+	close(testTasks)
+
+	for s := 0; s < samplesCount; s++ {
+		_ = <-samples
+	}
+
+	totalObjectSizeInBytes := 1024 * (1 << (object_level - 1)) * samplesCount
+	// stop the timer for this benchmark
+	totalTime := time.Now().Sub(benchmarkTimer)
+
+	return []byte(fmt.Sprintf(`[{"TotalObjectSizeInBytes": %d, "TotalTime": %f}]`, totalObjectSizeInBytes, totalTime.Seconds()))
+}
+
+func (s3P S3Performancer) Init() {
+}
+
+// Default performancer
+
+type DefaultPerformancer struct {
 }
 
 type dataPoint struct {
@@ -18,7 +83,7 @@ type dataPoint struct {
 	Latency          float64
 }
 
-func (s3P S3Performancer) Start(ctx context.Context, params EventParams) []byte {
+func (d DefaultPerformancer) Start(ctx context.Context, params EventParams) []byte {
 	results := []dataPoint{}
 	for i := 0; i < params.CountInSingleInstance; i++ {
 		rand.Seed(time.Now().UnixNano())
@@ -40,17 +105,5 @@ func (s3P S3Performancer) Start(ctx context.Context, params EventParams) []byte 
 	return b
 }
 
-func (s3P S3Performancer) Init() {
-}
-
-// default performancer
-
-type DefaultPerformancer struct {
-}
-
-func (s3P DefaultPerformancer) Start(ctx context.Context, params EventParams) []byte {
-	return []byte("")
-}
-
-func (s3P DefaultPerformancer) Init() {
+func (d DefaultPerformancer) Init() {
 }

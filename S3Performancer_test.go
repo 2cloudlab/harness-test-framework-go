@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"testing"
 	"time"
 )
@@ -24,13 +25,15 @@ func (mctx MockContext) Value(key interface{}) interface{} {
 }
 
 func TestS3PerformancerStart(t *testing.T) {
+	init_shared_resource()
 	performer := S3Performancer{}
-	params := EventParams{CountInSingleInstance: 2}
+	params := EventParams{CountInSingleInstance: 2, RawJson: `{ "FileSize" : 1}`}
 	context := MockContext{}
-	performer.Start(context, params)
+	fmt.Println(string(performer.Start(context, params)))
 }
 
 func TestS3PerformancerInit(t *testing.T) {
+	init_shared_resource()
 	performer := S3Performancer{}
 	performer.Init()
 }
