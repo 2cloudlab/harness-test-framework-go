@@ -91,10 +91,10 @@ func generate_report(prefix []byte) {
 
 	// do stats such as mean, p99, min etc.
 	fmt.Println("do stats such as mean, p99, min etc. ...")
-	var buffer strings.Builder
 	flat_data := []float64{}
 	record_number := 0
 	headers_number := len(headers)
+	var statBuffer strings.Builder
 	for _, key := range headers {
 		avg, _ := stats.Mean(headersToMap[key])
 		min := headersToMap[key][len(headersToMap[key])-1]
@@ -105,16 +105,16 @@ func generate_report(prefix []byte) {
 		p99, _ := stats.Percentile(headersToMap[key], 99)
 		max := headersToMap[key][0]
 		single_metric_stats_header := fmt.Sprintf("|%s %s %s %s %s %s %s %s", "avg", "min", "p25", "p50", "p75", "p90", "p99", "max")
-		buffer.WriteString(single_metric_stats_header)
-		single_metric_stats := fmt.Sprintf("|%s %s %s %s %s %s %s %s", avg, min, p25, p50, p75, p90, p99, max)
-		buffer.WriteString(single_metric_stats)
+		statBuffer.WriteString(single_metric_stats_header)
+		single_metric_stats := fmt.Sprintf("|%d %d %d %d %d %d %d %d", avg, min, p25, p50, p75, p90, p99, max)
+		statBuffer.WriteString(single_metric_stats)
 		flat_data = append(flat_data, headersToMap[key]...)
 		record_number = len(headersToMap[key])
 	}
 
 	// generate report
 	fmt.Println("generate report ...")
-
+	var buffer strings.Builder
 	buffer.WriteString(strings.Join(headers[:], " "))
 	buffer.WriteString("\n")
 	for i := 0; i < record_number; i++ {
@@ -126,8 +126,10 @@ func generate_report(prefix []byte) {
 		buffer.WriteString("\n")
 	}
 
-	d1 := []byte(strings.Trim(buffer.String(), "\n"))
-	ioutil.WriteFile(fmt.Sprintf("report-%s.csv", prefixInStr), d1, 0644)
+	d1 := []byte(strings.ReplaceAll(strings.Trim(buffer.String(), "\n"), " ", ","))
+	ioutil.WriteFile(fmt.Sprintf("raw-data-%s.csv", prefixInStr), d1, 0644)
+	d2 := []byte(strings.Trim(statBuffer.String(), "\n"))
+	ioutil.WriteFile(fmt.Sprintf("report-%s.csv", prefixInStr), d2, 0644)
 }
 
 var g_bucket_name string
