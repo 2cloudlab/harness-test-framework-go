@@ -3,8 +3,12 @@ package main
 import (
 	"fmt"
 
+	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
+	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/lambda"
+	"github.com/aws/aws-sdk-go/service/s3"
+	"github.com/aws/aws-sdk-go/service/s3/s3manager"
 )
 
 type EventParams struct {
@@ -87,4 +91,46 @@ func getObjectName(i int) string {
 
 func getReportName(prefix string, key string) string {
 	return fmt.Sprintf("%s/%s", prefix, key)
+}
+
+func downloadFile(bucket string, key string) []byte {
+	buf := aws.NewWriteAtBuffer([]byte{})
+	_, err := g_s3_downloader.Download(buf,
+		&s3.GetObjectInput{
+			Bucket: aws.String(bucket),
+			Key:    aws.String(key),
+		})
+	if err != nil {
+		recordError(err)
+	}
+	return buf.Bytes()
+}
+
+func downloadByPrefix(bucket string, prefix string) [][]byte {
+	resp, err := g_s3_service.ListObjects(&s3.ListObjectsInput{
+		Bucket: aws.String(bucket),
+		Prefix: aws.String(prefix),
+	})
+	results := [][]byte{}
+	if err != nil {
+		recordError(err)
+		return results
+	}
+	for _, item := range resp.Contents {
+		results = append(results, downloadFile(bucket, *item.Key))
+	}
+	return results
+}
+
+var g_s3_service *s3.S3
+var g_s3_downloader *s3manager.Downloader
+var g_lambda_service *lambda.Lambda
+var g_bucket_name string
+
+func init_shared_resource() {
+	sess := session.New()
+	g_s3_service = s3.New(sess)
+	g_s3_downloader = s3manager.NewDownloader(sess)
+	g_lambda_service = lambda.New(sess)
+	g_bucket_name = "2cloudlab-performance-benchmark-bucket"
 }

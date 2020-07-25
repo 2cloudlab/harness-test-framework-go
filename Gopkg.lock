@@ -76,6 +76,14 @@
   pruneopts = "UT"
   revision = "c2b33e84"
 
+[[projects]]
+  digest = "1:472d8e23e172bbd04985f64afad9e0cab315386d490a63501f9f37152434ebd8"
+  name = "github.com/montanaflynn/stats"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "7716e4c14e5729d92dff8c89600a0345d61ef698"
+  version = "v0.6.3"
+
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
@@ -87,6 +95,7 @@
     "github.com/aws/aws-sdk-go/aws/session",
     "github.com/aws/aws-sdk-go/service/lambda",
     "github.com/aws/aws-sdk-go/service/s3",
+    "github.com/montanaflynn/stats",
   ]
   solver-name = "gps-cdcl"
   solver-version = 1

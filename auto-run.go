@@ -3,39 +3,36 @@ package main
 import (
 	"bytes"
 	"encoding/json"
-	"time"
+	"fmt"
+	"io/ioutil"
 	"sort"
 	"strings"
-	"io/ioutil"
-	"fmt"
+	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/lambda"
 	"github.com/aws/aws-sdk-go/service/s3"
+	"github.com/montanaflynn/stats"
 )
 
 func upload() {
-	svc := s3.New(session.New())
-	
-	// generate 16 objects with size range from 1KB to 32 MB, increase by a factor of 2 
+	// generate 16 objects with size range from 1KB to 32 MB, increase by a factor of 2
 	initSizeInBytes := 1024
-	bucket_name := "2cloudlab-performance-benchmark-bucket"
 	for i := 0; i < 16; i++ {
 		subKey := getObjectName(i + 1)
-		_, err := svc.HeadObject(&s3.HeadObjectInput{
-			Bucket: aws.String(bucket_name),
+		_, err := g_s3_service.HeadObject(&s3.HeadObjectInput{
+			Bucket: aws.String(g_bucket_name),
 			Key:    aws.String(subKey),
 		})
-		
+
 		if err != nil {
 			//could not find object
 			input := &s3.PutObjectInput{
-				Body:   bytes.NewReader(make([]byte, initSizeInBytes )),
-				Bucket: aws.String(bucket_name),
+				Body:   bytes.NewReader(make([]byte, initSizeInBytes)),
+				Bucket: aws.String(g_bucket_name),
 				Key:    aws.String(subKey),
 			}
-			_, err := svc.PutObject(input)
+			_, err := g_s3_service.PutObject(input)
 
 			if err != nil {
 				recordError(err)
@@ -46,70 +43,95 @@ func upload() {
 }
 
 func generate_report(prefix []byte) {
-	// Creating the array for JSON
-	m := []interface{}{}
-	jsonInStr := "[{\"abc\":100,\"xyz\":-2.1},{\"abc\":1000,\"xyz\":10.1}]"
-    // Parsing/Unmarshalling JSON encoding/json
-	err := json.Unmarshal([]byte(jsonInStr), &m)
-	if err != nil {
-        panic(err)
+	// get report units from S3
+	report_units := downloadByPrefix(g_bucket_name, string(prefix[:]))
+	if len(report_units) == 0 {
+		return
 	}
+
+	// parse headers
 	headersToMap := map[string][]float64{}
 	headers := []string{}
-	for _, obj := range m {
-		for key, _ := range obj.(map[string]interface{}) {
-			headersToMap[key] = []float64{}
-			headers = append(headers, key)
-		}
-		break
+	m := []interface{}{}
+	err := json.Unmarshal(report_units[0], &m)
+	if err != nil {
+		recordError(err)
+	}
+	for key, _ := range m[0].(map[string]interface{}) {
+		headersToMap[key] = []float64{}
+		headers = append(headers, key)
 	}
 
-	for _, obj := range m {
-		for key, val := range obj.(map[string]interface{}) {
-			headersToMap[key] = append(headersToMap[key], val.(float64))
+	// aggregate all report units
+	for _, item := range report_units {
+		// Creating the array for JSON
+		m = []interface{}{}
+		//jsonInStr := "[{\"abc\":100,\"xyz\":-2.1},{\"abc\":1000,\"xyz\":10.1}]"
+		// Parsing/Unmarshalling JSON encoding/json
+		err := json.Unmarshal(item, &m)
+		if err != nil {
+			recordError(err)
+		}
+
+		for _, obj := range m {
+			for key, val := range obj.(map[string]interface{}) {
+				headersToMap[key] = append(headersToMap[key], val.(float64))
+			}
 		}
 	}
 
+	// sort each metrics in descending order
 	for _, key := range headers {
 		sort.Sort(sort.Reverse(sort.Float64Slice(headersToMap[key])))
 	}
-	var buffer strings.Builder
-	buffer.WriteString(strings.Join(headers[:], " "))
-	buffer.WriteString("\n")
 
+	// do stats such as mean, p99, min etc.
+	var buffer strings.Builder
 	flat_data := []float64{}
 	record_number := 0
 	headers_number := len(headers)
 	for _, key := range headers {
+		avg, _ := stats.Mean(headersToMap[key])
+		min := headersToMap[key][len(headersToMap[key])-1]
+		p25, _ := stats.Percentile(headersToMap[key], 25)
+		p50, _ := stats.Percentile(headersToMap[key], 50)
+		p75, _ := stats.Percentile(headersToMap[key], 75)
+		p90, _ := stats.Percentile(headersToMap[key], 90)
+		p99, _ := stats.Percentile(headersToMap[key], 99)
+		max := headersToMap[key][0]
+		single_metric_stats_header := fmt.Sprint("|%s %s %s %s %s %s %s %s", "avg", "min", "p25", "p50", "p75", "p90", "p99", "max")
+		single_metric_stats := fmt.Sprint("|%s %s %s %s %s %s %s %s", avg, min, p25, p50, p75, p90, p99, max)
 		flat_data = append(flat_data, headersToMap[key]...)
 		record_number = len(headersToMap[key])
 	}
 
+	buffer.WriteString(strings.Join(headers[:], " "))
+	buffer.WriteString("\n")
 	for i := 0; i < record_number; i++ {
 		one_row := []float64{}
 		for j := 0; j < headers_number; j++ {
-			one_row = append(one_row, flat_data[i + j * record_number])
+			one_row = append(one_row, flat_data[i+j*record_number])
 		}
 		buffer.WriteString(strings.Trim(fmt.Sprint(one_row), "[]"))
 		buffer.WriteString("\n")
-	} 
+	}
 
-	d1 := []byte(strings.Trim(buffer.String(),"\n"))
-    ioutil.WriteFile("report.csv", d1, 0644)
+	d1 := []byte(strings.Trim(buffer.String(), "\n"))
+	ioutil.WriteFile("report.csv", d1, 0644)
 }
 
 func main() {
+	init_shared_resource()
 	// upload data to S3
 	upload()
 	// launch Lambda Function
-	svc := lambda.New(session.New())
 	params := EventParams{Iteration: 5, LambdaFunctionName: "worker-handler", CountInSingleInstance: 1}
 	payLoadInJson, _ := json.Marshal(params)
 	input := &lambda.InvokeInput{
 		FunctionName: aws.String("test-harness-framework"),
 		Payload:      payLoadInJson,
 	}
-	result, err := svc.Invoke(input)
+	result, err := g_lambda_service.Invoke(input)
 	if err != nil {
 		recordError(err)
 		return

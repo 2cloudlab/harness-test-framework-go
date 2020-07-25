@@ -10,7 +10,6 @@ import (
 	"github.com/aws/aws-lambda-go/lambdacontext"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
-	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
 )
 
@@ -22,14 +21,13 @@ type Performancer interface {
 var performer = S3Performancer{}
 
 func Record(key string, value []byte) {
-	svc := s3.New(session.New())
 	input := &s3.PutObjectInput{
 		Body:   bytes.NewReader(value),
 		Bucket: aws.String(os.Getenv("BUCKET_NAME")),
 		Key:    aws.String(key),
 	}
 
-	_, err := svc.PutObject(input)
+	_, err := g_s3_service.PutObject(input)
 	if err != nil {
 		if aerr, ok := err.(awserr.Error); ok {
 			switch aerr.Code() {
@@ -52,6 +50,7 @@ func LambdaHandler(ctx context.Context, params EventParams) (int, error) {
 }
 
 func main() {
+	init_shared_resource()
 	performer.Init()
 	lambda_context.Start(LambdaHandler)
 }
