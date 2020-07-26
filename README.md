@@ -7,7 +7,7 @@
 1. Build from source
 
 ```bash
-go build worker-handler.go shared-data-struct.go S3Performancer.go
+GOOS="linux" GOARCH="amd64" go build -ldflags "-w -s" worker-handler.go shared-data-struct.go *Performancer.go
 ```
 
 2. Zip the generated executable bin
@@ -21,11 +21,11 @@ zip worker-handler.zip worker-handler
 ```bash
 terraform init
 terraform plan
-terraform apply
+terraform apply -var="bucket_name=<replace-with-your-bucket-name>"
 ```
 
-4. Launch Test Harness & collect result
+4. Launch Test Harness & collect reports
 
 ```bash
-go run auto-run.go
+go run auto-run.go shared-data-struct.go -bucket-name <your-provisioned-bucket-name-in-step-3>
 ```

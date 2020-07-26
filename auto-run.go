@@ -5,10 +5,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"os"
 	"sort"
 	"strings"
 	"time"
+	"flag"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/lambda"
@@ -133,12 +133,16 @@ func generate_report(prefix []byte) {
 var g_bucket_name string
 
 func main() {
-	if len(os.Args) < 2 {
+	timeToWaitArg := flag.Int("time-to-wait", 1, "Time to wait when begins to get reports in S3, unit by Minute.")
+	bucketNameArg := flag.String("bucket-name", "", "Bucket name to store generated reports.")
+	flag.Parse()
+	if len(*bucketNameArg) == 0 {
 		fmt.Println("Please provide bucket name, for example, enter the following command:")
 		fmt.Println("./auto-run <your-bucket-name>")
 		return
 	}
-	g_bucket_name = os.Args[1]
+
+	g_bucket_name = *bucketNameArg
 	init_shared_resource()
 	// upload data to S3
 	upload()
@@ -164,8 +168,8 @@ func main() {
 		results = append(results, result.Payload)
 	}
 
-	// wait 15 minutes
-	time.Sleep(1 * time.Minute)
+	// wait after timeToWaitArg minutes to begin collect reports
+	time.Sleep(time.Duration(*timeToWaitArg) * time.Minute)
 
 	// generate report
 	for _, item := range results {
