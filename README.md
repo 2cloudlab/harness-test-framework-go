@@ -2,6 +2,20 @@
 
 ![](test-harness-framework-go.png)
 
+## Introduction
+
+This is a Test Harness Framework(written in Go) based on AWS Lambda Function. It can be used in the following scenarios:
+
+1. Launch a large number of loaders to do performance tests against your services.
+2. Do performance tests on AWS services, such as S3, DynamoDB etc.
+
+All you require to do are:
+
+1. Write a code snippet for your scenario in Go.
+2. Tune the test parameters & start the tests.
+
+After that, a few reports, including stats and raw reports, will be automatically generated in `.csv` format. You can import it into sheet to compare the benchmarks.
+
 ## Usage
 
 1. Build from source
