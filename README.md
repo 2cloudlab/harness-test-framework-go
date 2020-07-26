@@ -1,5 +1,7 @@
 # Test Harness Framework in Go based on AWS Lambda Function
 
+![](test-harness-framework-go.png)
+
 ## Usage
 
 1. Build from source
