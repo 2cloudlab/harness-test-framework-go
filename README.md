@@ -21,6 +21,8 @@ After that, a few reports, including stats and raw reports, will be automaticall
 1. Build from source
 
 ```bash
+cd test-harness-framework-go
+dep ensure
 GOOS="linux" GOARCH="amd64" go build -ldflags "-w -s" worker-handler.go shared-data-struct.go *Performancer.go
 ```
 
