@@ -89,6 +89,10 @@ func getObjectName(i int) string {
 	return fmt.Sprintf("test-data/object-%d-1024-KB", i)
 }
 
+func getObjectSize(i int) string {
+	return fmt.Sprintf("%d KB", 1024*(1<<(i-1)))
+}
+
 func getReportName(prefix string, key string) string {
 	return fmt.Sprintf("%s/%s", prefix, key)
 }

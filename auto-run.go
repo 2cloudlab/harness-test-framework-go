@@ -3,13 +3,14 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"flag"
 	"fmt"
 	"io/ioutil"
 	"sort"
 	"strings"
 	"time"
-	"flag"
 
+	"github.com/ahmetb/go-linq"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/lambda"
 	"github.com/aws/aws-sdk-go/service/s3"
@@ -43,13 +44,39 @@ func upload() {
 	}
 }
 
-func generate_report(prefix []byte, profileName string) {
+func getFunctionConfigByName(functionName string) *lambda.FunctionConfiguration {
+	input := &lambda.GetFunctionConfigurationInput{
+		FunctionName: aws.String(functionName),
+	}
+
+	result, err := g_lambda_service.GetFunctionConfiguration(input)
+	if err != nil {
+		recordError(err)
+	}
+	return result
+}
+
+type ReportInfo struct {
+	ProfileName      string
+	MemorySizeInMB   int64
+	ConcurrentNumber int
+	RawJson          string
+}
+
+type ReportFiles struct {
+	RawReport   string
+	StatsReport string
+	ProfileName string
+}
+
+func generate_report(prefix []byte, info ReportInfo) ReportFiles {
+	finalReportFiles := ReportFiles{}
 	// get report units from S3
 	prefixInStr := strings.Trim(string(prefix[:]), "\"")
 	fmt.Printf("get report units from S3, key is %s ...", prefixInStr)
 	report_units := downloadByPrefix(g_bucket_name, prefixInStr)
 	if len(report_units) == 0 {
-		return
+		return finalReportFiles
 	}
 
 	// parse headers
@@ -60,7 +87,7 @@ func generate_report(prefix []byte, profileName string) {
 	err := json.Unmarshal(report_units[0], &m)
 	if err != nil {
 		recordError(err)
-		return
+		return finalReportFiles
 	}
 	for key, _ := range m[0].(map[string]interface{}) {
 		headersToMap[key] = []float64{}
@@ -95,6 +122,25 @@ func generate_report(prefix []byte, profileName string) {
 	record_number := len(headersToMap[headers[0]])
 	headers_number := len(headers)
 	var statBuffer strings.Builder
+	testConditions := fmt.Sprintf("Memory size: %d, Concurrent number: %d", info.MemorySizeInMB, info.ConcurrentNumber)
+	rawjsonObj := map[string]interface{}{}
+	err = json.Unmarshal([]byte(info.RawJson), &rawjsonObj)
+	if err == nil {
+		for key, val := range rawjsonObj {
+			s, ok := val.(string)
+			if ok {
+				testConditions = testConditions + fmt.Sprintf(", %s: %s", key, s)
+				continue
+			}
+			d, ok := val.(float64)
+			if ok {
+				testConditions = testConditions + fmt.Sprintf(", %s: %f", key, d)
+				continue
+			}
+		}
+	}
+	statBuffer.WriteString(testConditions)
+	statBuffer.WriteString("\n")
 	statBuffer.WriteString(fmt.Sprintf("metrics,%s,%s,%s,%s,%s,%s,%s,%s\n", "avg", "min", "p25", "p50", "p75", "p90", "p99", "max"))
 	for _, key := range headers {
 		avg, _ := stats.Mean(headersToMap[key])
@@ -113,21 +159,51 @@ func generate_report(prefix []byte, profileName string) {
 	// generate report
 	fmt.Println("generate report ...")
 	var buffer strings.Builder
-	buffer.WriteString(strings.Join(headers[:], " "))
+	buffer.WriteString(testConditions)
+	buffer.WriteString("\n")
+	buffer.WriteString(strings.Join(headers[:], ","))
 	buffer.WriteString("\n")
 	for i := 0; i < record_number; i++ {
 		one_row := []float64{}
 		for j := 0; j < headers_number; j++ {
 			one_row = append(one_row, flat_data[i+j*record_number])
 		}
-		buffer.WriteString(strings.Trim(fmt.Sprint(one_row), "[]"))
+		buffer.WriteString(strings.ReplaceAll(strings.Trim(fmt.Sprint(one_row), "[]"), " ", ","))
 		buffer.WriteString("\n")
 	}
 	dt := time.Now().Format("2006-01-02 15:04:05")
-	d1 := []byte(strings.ReplaceAll(strings.Trim(buffer.String(), "\n"), " ", ","))
-	ioutil.WriteFile(fmt.Sprintf("raw-data-%s-%s-%s.csv", profileName, dt, prefixInStr), d1, 0644)
+	d1 := []byte(strings.Trim(buffer.String(), "\n"))
+	finalReportFiles.RawReport = fmt.Sprintf("raw-data-%s-%s-%s.csv", info.ProfileName, dt, prefixInStr)
+	ioutil.WriteFile(finalReportFiles.RawReport, d1, 0644)
 	d2 := []byte(strings.Trim(statBuffer.String(), "\n"))
-	ioutil.WriteFile(fmt.Sprintf("report-%s-%s-%s.csv", profileName, dt, prefixInStr), d2, 0644)
+	finalReportFiles.StatsReport = fmt.Sprintf("report-%s-%s-%s.csv", info.ProfileName, dt, prefixInStr)
+	ioutil.WriteFile(finalReportFiles.StatsReport, d2, 0644)
+	finalReportFiles.ProfileName = info.ProfileName
+	return finalReportFiles
+}
+
+func mergeReports(reports []interface{}) {
+	d := time.Now().Format("2006-01-02 15:04:05")
+	{
+		var buffer strings.Builder
+		for _, r := range reports {
+			content, _ := ioutil.ReadFile(r.(ReportFiles).RawReport)
+			// Convert []byte to string and write to file
+			buffer.WriteString(string(content))
+			buffer.WriteString("\n")
+		}
+		ioutil.WriteFile(fmt.Sprintf("raw-data-%s-%s.csv", reports[0].(ReportFiles).ProfileName, d), []byte(buffer.String()), 0644)
+	}
+	{
+		var buffer strings.Builder
+		for _, r := range reports {
+			content, _ := ioutil.ReadFile(r.(ReportFiles).StatsReport)
+			// Convert []byte to string and write to file
+			buffer.WriteString(string(content))
+			buffer.WriteString("\n")
+		}
+		ioutil.WriteFile(fmt.Sprintf("report-%s-%s.csv", reports[0].(ReportFiles).ProfileName, d), []byte(buffer.String()), 0644)
+	}
 }
 
 var g_bucket_name string
@@ -149,7 +225,8 @@ func main() {
 	// launch Lambda Function
 	params := []EventParams{
 		EventParams{Iteration: 6, LambdaFunctionName: "worker-handler", ProfileName: "DefaultPerformancer", CountInSingleInstance: 2},
-		EventParams{Iteration: 1000, LambdaFunctionName: "worker-handler", ProfileName: "S3Performancer", CountInSingleInstance: 2000, RawJson: `{ "FileSize" : 5}`},
+		EventParams{Iteration: 7, LambdaFunctionName: "worker-handler", ProfileName: "DefaultPerformancer", CountInSingleInstance: 2},
+		//EventParams{Iteration: 100, LambdaFunctionName: "worker-handler", ProfileName: "S3Performancer", CountInSingleInstance: 10, RawJson: `{ "FileSize" : 7}`},
 	}
 	fmt.Println("Start ...")
 	results := [][]byte{}
@@ -171,9 +248,25 @@ func main() {
 	// wait after timeToWaitArg minutes to begin collect reports
 	time.Sleep(time.Duration(*timeToWaitArg) * time.Minute)
 
-	// generate report
+	// generate reports
+	reports := []ReportFiles{}
 	for idx, item := range results {
-		generate_report(item, params[idx].ProfileName)
+		fc := getFunctionConfigByName(params[idx].LambdaFunctionName)
+		info := ReportInfo{ProfileName: params[idx].ProfileName, MemorySizeInMB: *fc.MemorySize, ConcurrentNumber: params[idx].CountInSingleInstance, RawJson: params[idx].RawJson}
+		reports = append(reports, generate_report(item, info))
 	}
-	fmt.Println("End ...")
+
+	// merge reports
+	fmt.Println("Merge reports ...")
+	q := linq.From(reports).GroupBy(
+		func(i interface{}) interface{} { return i.(ReportFiles).ProfileName },
+		func(i interface{}) interface{} { return i.(ReportFiles) })
+
+	groupedResults := q.OrderBy(func(i interface{}) interface{} {
+		return i.(linq.Group).Key
+	}).Results()
+	for _, r := range groupedResults {
+		mergeReports(r.(linq.Group).Group)
+	}
+	fmt.Println("End!")
 }

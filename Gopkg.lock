@@ -2,6 +2,14 @@
 
 
 [[projects]]
+  digest = "1:31bd9d70492aec37a6bf45a42e96ed0f37fab74aa619d539b5acb9477500eb79"
+  name = "github.com/ahmetb/go-linq"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "b1b02a14bd27fab06f03ca1e4eed893f5011c152"
+  version = "v3.1.0"
+
+[[projects]]
   digest = "1:1676a8c5a835f285bae88b89a96b276aa04e77c381650d9da282115ac746843a"
   name = "github.com/aws/aws-lambda-go"
   packages = [
@@ -15,7 +23,7 @@
   version = "v1.18.0"
 
 [[projects]]
-  digest = "1:4f9dbb47826e24dbbe7a2c94120a5186031700d850e8cf30ccd307e238a93f8b"
+  digest = "1:7b22f4a5960847eb57c2025f5dd4a5c48cf67a06d0815ec86e1c36dcb95d21ba"
   name = "github.com/aws/aws-sdk-go"
   packages = [
     "aws",
@@ -62,6 +70,8 @@
     "service/lambda",
     "service/s3",
     "service/s3/internal/arn",
+    "service/s3/s3iface",
+    "service/s3/s3manager",
     "service/sts",
     "service/sts/stsiface",
   ]
@@ -88,6 +98,7 @@
   analyzer-name = "dep"
   analyzer-version = 1
   input-imports = [
+    "github.com/ahmetb/go-linq",
     "github.com/aws/aws-lambda-go/lambda",
     "github.com/aws/aws-lambda-go/lambdacontext",
     "github.com/aws/aws-sdk-go/aws",
@@ -95,6 +106,7 @@
     "github.com/aws/aws-sdk-go/aws/session",
     "github.com/aws/aws-sdk-go/service/lambda",
     "github.com/aws/aws-sdk-go/service/s3",
+    "github.com/aws/aws-sdk-go/service/s3/s3manager",
     "github.com/montanaflynn/stats",
   ]
   solver-name = "gps-cdcl"
