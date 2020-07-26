@@ -27,8 +27,7 @@ func (s3P S3Performancer) Start(ctx context.Context, params EventParams) []byte 
 	object_level := int(m["FileSize"].(float64))
 	sample_data_key := getObjectName(object_level)
 	testTasks := make(chan int, params.CountInSingleInstance)
-	samplesCount := 100
-	samples := make(chan int, samplesCount)
+	samples := make(chan int, params.CountInSingleInstance)
 	for g := 0; g < params.CountInSingleInstance; g++ {
 		go func(tasks <-chan int, results chan<- int) {
 			for range tasks {
@@ -53,17 +52,17 @@ func (s3P S3Performancer) Start(ctx context.Context, params EventParams) []byte 
 
 	benchmarkTimer := time.Now()
 
-	for i := 0; i < samplesCount; i++ {
+	for i := 0; i < params.CountInSingleInstance; i++ {
 		testTasks <- i
 	}
 
 	close(testTasks)
 
-	for s := 0; s < samplesCount; s++ {
+	for s := 0; s < params.CountInSingleInstance; s++ {
 		_ = <-samples
 	}
 
-	totalObjectSizeInBytes := 1024 * (1 << (object_level - 1)) * samplesCount
+	totalObjectSizeInBytes := 1024 * (1 << (object_level - 1)) * params.CountInSingleInstance
 	// stop the timer for this benchmark
 	totalTime := time.Now().Sub(benchmarkTimer)
 

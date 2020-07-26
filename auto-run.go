@@ -43,7 +43,7 @@ func upload() {
 	}
 }
 
-func generate_report(prefix []byte) {
+func generate_report(prefix []byte, profileName string) {
 	// get report units from S3
 	prefixInStr := strings.Trim(string(prefix[:]), "\"")
 	fmt.Printf("get report units from S3, key is %s ...", prefixInStr)
@@ -123,11 +123,11 @@ func generate_report(prefix []byte) {
 		buffer.WriteString(strings.Trim(fmt.Sprint(one_row), "[]"))
 		buffer.WriteString("\n")
 	}
-
+	dt := time.Now().Format("2006-01-02 15:04:05")
 	d1 := []byte(strings.ReplaceAll(strings.Trim(buffer.String(), "\n"), " ", ","))
-	ioutil.WriteFile(fmt.Sprintf("raw-data-%s.csv", prefixInStr), d1, 0644)
+	ioutil.WriteFile(fmt.Sprintf("raw-data-%s-%s-%s.csv", profileName, dt, prefixInStr), d1, 0644)
 	d2 := []byte(strings.Trim(statBuffer.String(), "\n"))
-	ioutil.WriteFile(fmt.Sprintf("report-%s.csv", prefixInStr), d2, 0644)
+	ioutil.WriteFile(fmt.Sprintf("report-%s-%s-%s.csv", profileName, dt, prefixInStr), d2, 0644)
 }
 
 var g_bucket_name string
@@ -149,7 +149,7 @@ func main() {
 	// launch Lambda Function
 	params := []EventParams{
 		EventParams{Iteration: 6, LambdaFunctionName: "worker-handler", ProfileName: "DefaultPerformancer", CountInSingleInstance: 2},
-		EventParams{Iteration: 5, LambdaFunctionName: "worker-handler", ProfileName: "S3Performancer", CountInSingleInstance: 1, RawJson: `{ "FileSize" : 1}`},
+		EventParams{Iteration: 1000, LambdaFunctionName: "worker-handler", ProfileName: "S3Performancer", CountInSingleInstance: 2000, RawJson: `{ "FileSize" : 5}`},
 	}
 	fmt.Println("Start ...")
 	results := [][]byte{}
@@ -172,8 +172,8 @@ func main() {
 	time.Sleep(time.Duration(*timeToWaitArg) * time.Minute)
 
 	// generate report
-	for _, item := range results {
-		generate_report(item)
+	for idx, item := range results {
+		generate_report(item, params[idx].ProfileName)
 	}
 	fmt.Println("End ...")
 }
