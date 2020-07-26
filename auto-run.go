@@ -145,7 +145,7 @@ func main() {
 	// launch Lambda Function
 	params := []EventParams{
 		//EventParams{Iteration:             5,LambdaFunctionName:    "worker-handler",ProfileName:           "DefaultPerformancer", CountInSingleInstance: 2,},
-		EventParams{Iteration: 5, LambdaFunctionName: "worker-handler", ProfileName: "S3Performancer", CountInSingleInstance: 1, RawJson: `{ "FileSize" : 1}`},
+		EventParams{Iteration: 1000, LambdaFunctionName: "worker-handler", ProfileName: "S3Performancer", CountInSingleInstance: 100, RawJson: `{ "FileSize" : 1}`},
 	}
 	fmt.Println("Start ...")
 	results := [][]byte{}

@@ -32,19 +32,19 @@ func (s3P S3Performancer) Start(ctx context.Context, params EventParams) []byte 
 	for g := 0; g < params.CountInSingleInstance; g++ {
 		go func(tasks <-chan int, results chan<- int) {
 			for range tasks {
-				result, _ := g_s3_service.GetObject(&s3.GetObjectInput{
+				result, err := g_s3_service.GetObject(&s3.GetObjectInput{
 					Bucket: aws.String(os.Getenv("BUCKET_NAME")),
 					Key:    aws.String(sample_data_key),
 				})
-
-				buf := new(bytes.Buffer)
-				buf.ReadFrom(result.Body)
 
 				// if a request fails, exit
 				if err != nil {
 					recordError(err)
 					panic("Failed to get object: " + err.Error())
 				}
+
+				buf := new(bytes.Buffer)
+				buf.ReadFrom(result.Body)
 
 				results <- 1
 			}

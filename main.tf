@@ -13,11 +13,11 @@ data "aws_caller_identity" "current" {}
 data "aws_region" "current" {}
 
 locals {
-  account_id = "${data.aws_caller_identity.current.account_id}"
-  region_name = "${data.aws_region.current.name}"
-  time_out_in_second = 900
+  account_id                 = "${data.aws_caller_identity.current.account_id}"
+  region_name                = "${data.aws_region.current.name}"
+  time_out_in_second         = 900
   test_harness_function_name = "test-harness-framework"
-  policy_for_test_harness = <<POLICY
+  policy_for_test_harness    = <<POLICY
 {
     "Version": "2012-10-17",
     "Statement": [
@@ -46,7 +46,7 @@ locals {
     ]
 }
 POLICY
-  policy_for_worker_handler = <<POLICY
+  policy_for_worker_handler  = <<POLICY
 {
     "Version": "2012-10-17",
     "Statement": [
@@ -68,7 +68,8 @@ POLICY
         {
             "Effect": "Allow",
             "Action": [
-            "s3:PutObject"
+                "s3:PutObject",
+                "s3:GetObject"
             ],
             "Resource": "arn:aws:s3:::${var.bucket_name}/*"
         }
@@ -117,8 +118,8 @@ resource "aws_lambda_function" "test_harness_lambda" {
   function_name = local.test_harness_function_name
   role          = aws_iam_role.role_for_test_harness.arn
   handler       = local.test_harness_function_name
-  timeout = local.time_out_in_second
-  memory_size = var.memory_size_in_MB
+  timeout       = local.time_out_in_second
+  memory_size   = var.memory_size_in_MB
 
   # The filebase64sha256() function is available in Terraform 0.11.12 and later
   # For Terraform 0.11.11 and earlier, use the base64sha256() function and the file() function:
@@ -169,8 +170,8 @@ resource "aws_lambda_function" "worker_handler_lambda" {
   function_name = var.worker_handler_zip_file
   role          = aws_iam_role.role_for_worker_handler.arn
   handler       = var.worker_handler_zip_file
-  timeout = local.time_out_in_second
-  memory_size = var.memory_size_in_MB
+  timeout       = local.time_out_in_second
+  memory_size   = var.memory_size_in_MB
 
   # The filebase64sha256() function is available in Terraform 0.11.12 and later
   # For Terraform 0.11.11 and earlier, use the base64sha256() function and the file() function:

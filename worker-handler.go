@@ -43,7 +43,7 @@ func Record(key string, value []byte) {
 	}
 }
 
-var performers map[string]*Performancer
+var performers = map[string]*Performancer{}
 
 func getPerformer(name string) *Performancer {
 	if val, ok := performers[name]; ok {
