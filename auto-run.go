@@ -141,7 +141,7 @@ func generate_report(prefix []byte, info ReportInfo) ReportFiles {
 	}
 	statBuffer.WriteString(testConditions)
 	statBuffer.WriteString("\n")
-	statBuffer.WriteString(fmt.Sprintf("metrics,%s,%s,%s,%s,%s,%s,%s,%s\n", "avg", "min", "p25", "p50", "p75", "p90", "p99", "max"))
+	statBuffer.WriteString(fmt.Sprintf("Stats Metrics,%s,%s,%s,%s,%s,%s,%s,%s\n", "avg", "min", "p25", "p50", "p75", "p90", "p99", "max"))
 	for _, key := range headers {
 		avg, _ := stats.Mean(headersToMap[key])
 		min := headersToMap[key][len(headersToMap[key])-1]
@@ -237,9 +237,15 @@ func main() {
 	upload()
 	// launch Lambda Function
 	params := []EventParams{
-		EventParams{Iteration: 6, LambdaFunctionName: "worker-handler", ProfileName: "DefaultPerformancer", CountInSingleInstance: 2},
-		EventParams{Iteration: 7, LambdaFunctionName: "worker-handler", ProfileName: "DefaultPerformancer", CountInSingleInstance: 2},
-		//EventParams{Iteration: 100, LambdaFunctionName: "worker-handler", ProfileName: "S3Performancer", CountInSingleInstance: 10, RawJson: `{ "FileSize" : 7}`},
+		//EventParams{Iteration: 6, LambdaFunctionName: "worker-handler", ProfileName: "DefaultPerformancer", CountInSingleInstance: 2},
+		//EventParams{Iteration: 7, LambdaFunctionName: "worker-handler", ProfileName: "DefaultPerformancer", CountInSingleInstance: 2},
+		EventParams{Iteration: 100, LambdaFunctionName: "worker-handler", ProfileName: "S3Performancer", CountInSingleInstance: 8, RawJson: `{ "FileSize" : 7}`},
+		EventParams{Iteration: 100, LambdaFunctionName: "worker-handler", ProfileName: "S3Performancer", CountInSingleInstance: 8, RawJson: `{ "FileSize" : 8}`},
+		EventParams{Iteration: 100, LambdaFunctionName: "worker-handler", ProfileName: "S3Performancer", CountInSingleInstance: 8, RawJson: `{ "FileSize" : 9}`},
+		EventParams{Iteration: 100, LambdaFunctionName: "worker-handler", ProfileName: "S3Performancer", CountInSingleInstance: 8, RawJson: `{ "FileSize" : 10}`},
+		EventParams{Iteration: 100, LambdaFunctionName: "worker-handler", ProfileName: "S3Performancer", CountInSingleInstance: 8, RawJson: `{ "FileSize" : 11}`},
+		EventParams{Iteration: 100, LambdaFunctionName: "worker-handler", ProfileName: "S3Performancer", CountInSingleInstance: 8, RawJson: `{ "FileSize" : 12}`},
+		EventParams{Iteration: 100, LambdaFunctionName: "worker-handler", ProfileName: "S3Performancer", CountInSingleInstance: 8, RawJson: `{ "FileSize" : 13}`},
 	}
 	fmt.Println("Start ...")
 	results := [][]byte{}
@@ -254,11 +260,12 @@ func main() {
 			recordError(err)
 			continue
 		}
-		fmt.Println(string(result.Payload[:]))
+		fmt.Println(fmt.Sprintf("Task %s is launched", string(result.Payload[:])))
 		results = append(results, result.Payload)
 	}
 
 	// wait after timeToWaitArg minutes to begin collect reports
+	fmt.Println(fmt.Sprintf("Start to wait about %d minutes ...", *timeToWaitArg))
 	time.Sleep(time.Duration(*timeToWaitArg) * time.Minute)
 
 	// generate reports
