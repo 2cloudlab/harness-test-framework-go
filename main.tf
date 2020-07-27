@@ -103,7 +103,7 @@ resource "aws_iam_policy" "permission_policy_for_test_harness" {
   name        = "permission_policy_for_test_harness"
   description = "Permissions policy for test harness"
 
-  policy = local.policy_for_test_harness
+  policy = "${local.policy_for_test_harness}"
 }
 
 resource "aws_iam_role_policy_attachment" "policy_role_attach" {
