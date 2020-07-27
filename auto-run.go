@@ -171,19 +171,32 @@ func generate_report(prefix []byte, info ReportInfo) ReportFiles {
 		buffer.WriteString(strings.ReplaceAll(strings.Trim(fmt.Sprint(one_row), "[]"), " ", ","))
 		buffer.WriteString("\n")
 	}
-	dt := time.Now().Format("2006-01-02 15:04:05")
+
+	t := time.Now()
+	dt := fmt.Sprintf("%d-%02d-%02dT%02d_%02d_%02d",
+		t.Year(), t.Month(), t.Day(),
+		t.Hour(), t.Minute(), t.Second())
 	d1 := []byte(strings.Trim(buffer.String(), "\n"))
-	finalReportFiles.RawReport = fmt.Sprintf("raw-data-%s-%s-%s.csv", info.ProfileName, dt, prefixInStr)
-	ioutil.WriteFile(finalReportFiles.RawReport, d1, 0644)
+	finalReportFiles.RawReport = strings.TrimSpace(fmt.Sprintf("raw-data-%s-%s-%s.csv", info.ProfileName, dt, prefixInStr))
+	err = ioutil.WriteFile(finalReportFiles.RawReport, d1, 0644)
+	if err != nil {
+		fmt.Println(err.Error())
+	}
 	d2 := []byte(strings.Trim(statBuffer.String(), "\n"))
-	finalReportFiles.StatsReport = fmt.Sprintf("report-%s-%s-%s.csv", info.ProfileName, dt, prefixInStr)
-	ioutil.WriteFile(finalReportFiles.StatsReport, d2, 0644)
+	finalReportFiles.StatsReport = strings.TrimSpace(fmt.Sprintf("report-%s-%s-%s.csv", info.ProfileName, dt, prefixInStr))
+	err = ioutil.WriteFile(finalReportFiles.StatsReport, d2, 0644)
+	if err != nil {
+		fmt.Println(err.Error())
+	}
 	finalReportFiles.ProfileName = info.ProfileName
 	return finalReportFiles
 }
 
 func mergeReports(reports []interface{}) {
-	d := time.Now().Format("2006-01-02 15:04:05")
+	t := time.Now()
+	d := fmt.Sprintf("%d-%02d-%02dT%02d_%02d_%02d",
+		t.Year(), t.Month(), t.Day(),
+		t.Hour(), t.Minute(), t.Second())
 	{
 		var buffer strings.Builder
 		for _, r := range reports {

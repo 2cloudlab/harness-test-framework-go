@@ -36,7 +36,6 @@ zip worker-handler.zip worker-handler
 
 ```bash
 terraform init
-terraform plan
 terraform apply -var="bucket_name=<replace-with-your-bucket-name>"
 ```
 
@@ -44,4 +43,10 @@ terraform apply -var="bucket_name=<replace-with-your-bucket-name>"
 
 ```bash
 go run auto-run.go shared-data-struct.go -bucket-name <your-provisioned-bucket-name-in-step-3>
+```
+
+5. Destroy resources
+
+```bash
+terraform destroy -var="bucket_name=<replace-with-your-bucket-name>"
 ```
