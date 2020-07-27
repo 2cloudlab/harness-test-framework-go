@@ -63,7 +63,7 @@ func (s3P S3Performancer) Start(ctx context.Context, params EventParams) []byte 
 		_ = <-samples
 	}
 
-	totalObjectSizeInBytes := 1024 * (1 << (object_level - 1)) * tasksNumber
+	totalObjectSizeInBytes := 1024 * (1 << uint8(object_level-1)) * tasksNumber
 	// stop the timer for this benchmark
 	totalTime := time.Now().Sub(benchmarkTimer)
 
