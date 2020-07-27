@@ -191,4 +191,5 @@ resource "aws_lambda_function" "worker_handler_lambda" {
 resource "aws_s3_bucket" "b" {
   bucket = var.bucket_name
   acl    = "private"
+  force_destroy = true
 }
