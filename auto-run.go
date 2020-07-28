@@ -141,19 +141,34 @@ func generate_report(prefix []byte, info ReportInfo) ReportFiles {
 	}
 	statBuffer.WriteString(testConditions)
 	statBuffer.WriteString("\n")
-	statBuffer.WriteString(fmt.Sprintf("Stats Metrics,%s,%s,%s,%s,%s,%s,%s,%s\n", "avg", "min", "p25", "p50", "p75", "p90", "p99", "max"))
+	headerCols := strings.Join(headers[:], ",")
+	statBuffer.WriteString(fmt.Sprintf("Stats Metrics,%s\n", headerCols))
+
+	metrics := [][]string{[]string{"avg"}, []string{"min"}, []string{"p25"}, []string{"p50"}, []string{"p75"}, []string{"p90"}, []string{"p99"}, []string{"max"}}
 	for _, key := range headers {
 		avg, _ := stats.Mean(headersToMap[key])
+		metrics[0] = append(metrics[0], fmt.Sprintf("%f", avg))
 		min := headersToMap[key][len(headersToMap[key])-1]
+		metrics[1] = append(metrics[1], fmt.Sprintf("%f", min))
 		p25, _ := stats.Percentile(headersToMap[key], 25)
+		metrics[2] = append(metrics[2], fmt.Sprintf("%f", p25))
 		p50, _ := stats.Percentile(headersToMap[key], 50)
+		metrics[3] = append(metrics[3], fmt.Sprintf("%f", p50))
 		p75, _ := stats.Percentile(headersToMap[key], 75)
+		metrics[4] = append(metrics[4], fmt.Sprintf("%f", p75))
 		p90, _ := stats.Percentile(headersToMap[key], 90)
+		metrics[5] = append(metrics[5], fmt.Sprintf("%f", p90))
 		p99, _ := stats.Percentile(headersToMap[key], 99)
+		metrics[6] = append(metrics[6], fmt.Sprintf("%f", p99))
 		max := headersToMap[key][0]
+		metrics[7] = append(metrics[7], fmt.Sprintf("%f", max))
 
-		statBuffer.WriteString(fmt.Sprintf("%s,%f,%f,%f,%f,%f,%f,%f,%f\n", key, avg, min, p25, p50, p75, p90, p99, max))
 		flat_data = append(flat_data, headersToMap[key]...)
+	}
+
+	for _, metric := range metrics {
+		statBuffer.WriteString(strings.Join(metric[:], ","))
+		statBuffer.WriteString("\n")
 	}
 
 	// generate report
@@ -161,7 +176,7 @@ func generate_report(prefix []byte, info ReportInfo) ReportFiles {
 	var buffer strings.Builder
 	buffer.WriteString(testConditions)
 	buffer.WriteString("\n")
-	buffer.WriteString(strings.Join(headers[:], ","))
+	buffer.WriteString(headerCols)
 	buffer.WriteString("\n")
 	for i := 0; i < record_number; i++ {
 		one_row := []float64{}
@@ -177,19 +192,23 @@ func generate_report(prefix []byte, info ReportInfo) ReportFiles {
 		t.Year(), t.Month(), t.Day(),
 		t.Hour(), t.Minute(), t.Second())
 	d1 := []byte(strings.Trim(buffer.String(), "\n"))
-	finalReportFiles.RawReport = strings.TrimSpace(fmt.Sprintf("raw-data-%s-%s-%s.csv", info.ProfileName, dt, prefixInStr))
+	finalReportFiles.RawReport = getReportPath(strings.TrimSpace(fmt.Sprintf("raw-data-%s-%s-%s.csv", info.ProfileName, dt, prefixInStr)))
 	err = ioutil.WriteFile(finalReportFiles.RawReport, d1, 0644)
 	if err != nil {
 		fmt.Println(err.Error())
 	}
 	d2 := []byte(strings.Trim(statBuffer.String(), "\n"))
-	finalReportFiles.StatsReport = strings.TrimSpace(fmt.Sprintf("report-%s-%s-%s.csv", info.ProfileName, dt, prefixInStr))
+	finalReportFiles.StatsReport = getReportPath(strings.TrimSpace(fmt.Sprintf("report-%s-%s-%s.csv", info.ProfileName, dt, prefixInStr)))
 	err = ioutil.WriteFile(finalReportFiles.StatsReport, d2, 0644)
 	if err != nil {
 		fmt.Println(err.Error())
 	}
 	finalReportFiles.ProfileName = info.ProfileName
 	return finalReportFiles
+}
+
+func getReportPath(fileName string) string {
+	return fmt.Sprintf("reports/%s", fileName)
 }
 
 func mergeReports(reports []interface{}) {
@@ -205,7 +224,7 @@ func mergeReports(reports []interface{}) {
 			buffer.WriteString(string(content))
 			buffer.WriteString("\n")
 		}
-		ioutil.WriteFile(fmt.Sprintf("raw-data-%s-%s.csv", reports[0].(ReportFiles).ProfileName, d), []byte(buffer.String()), 0644)
+		ioutil.WriteFile(getReportPath(fmt.Sprintf("raw-data-%s-%s.csv", reports[0].(ReportFiles).ProfileName, d)), []byte(strings.Trim(buffer.String(), "\n")), 0644)
 	}
 	{
 		var buffer strings.Builder
@@ -215,7 +234,7 @@ func mergeReports(reports []interface{}) {
 			buffer.WriteString(string(content))
 			buffer.WriteString("\n")
 		}
-		ioutil.WriteFile(fmt.Sprintf("report-%s-%s.csv", reports[0].(ReportFiles).ProfileName, d), []byte(buffer.String()), 0644)
+		ioutil.WriteFile(getReportPath(fmt.Sprintf("report-%s-%s.csv", reports[0].(ReportFiles).ProfileName, d)), []byte(strings.Trim(buffer.String(), "\n")), 0644)
 	}
 }
 
@@ -237,15 +256,15 @@ func main() {
 	upload()
 	// launch Lambda Function
 	params := []EventParams{
-		//EventParams{Iteration: 6, LambdaFunctionName: "worker-handler", ProfileName: "DefaultPerformancer", CountInSingleInstance: 2},
+		EventParams{NumberOfTasks: 6, LambdaFunctionName: "worker-handler", TaskName: "DefaultPerformancer", ConcurrencyForEachTask: 2, NumberOfSamples: 10},
 		//EventParams{Iteration: 7, LambdaFunctionName: "worker-handler", ProfileName: "DefaultPerformancer", CountInSingleInstance: 2},
-		EventParams{Iteration: 100, LambdaFunctionName: "worker-handler", ProfileName: "S3Performancer", CountInSingleInstance: 8, RawJson: `{ "FileSize" : 7}`},
-		EventParams{Iteration: 100, LambdaFunctionName: "worker-handler", ProfileName: "S3Performancer", CountInSingleInstance: 8, RawJson: `{ "FileSize" : 8}`},
-		EventParams{Iteration: 100, LambdaFunctionName: "worker-handler", ProfileName: "S3Performancer", CountInSingleInstance: 8, RawJson: `{ "FileSize" : 9}`},
-		EventParams{Iteration: 100, LambdaFunctionName: "worker-handler", ProfileName: "S3Performancer", CountInSingleInstance: 8, RawJson: `{ "FileSize" : 10}`},
-		EventParams{Iteration: 100, LambdaFunctionName: "worker-handler", ProfileName: "S3Performancer", CountInSingleInstance: 8, RawJson: `{ "FileSize" : 11}`},
-		EventParams{Iteration: 100, LambdaFunctionName: "worker-handler", ProfileName: "S3Performancer", CountInSingleInstance: 8, RawJson: `{ "FileSize" : 12}`},
-		EventParams{Iteration: 100, LambdaFunctionName: "worker-handler", ProfileName: "S3Performancer", CountInSingleInstance: 8, RawJson: `{ "FileSize" : 13}`},
+		//EventParams{Iteration: 100, LambdaFunctionName: "worker-handler", ProfileName: "S3Performancer", CountInSingleInstance: 8, RawJson: `{ "FileSize" : 7}`},
+		//EventParams{Iteration: 100, LambdaFunctionName: "worker-handler", ProfileName: "S3Performancer", CountInSingleInstance: 8, RawJson: `{ "FileSize" : 8}`},
+		//EventParams{Iteration: 100, LambdaFunctionName: "worker-handler", ProfileName: "S3Performancer", CountInSingleInstance: 8, RawJson: `{ "FileSize" : 9}`},
+		//EventParams{Iteration: 100, LambdaFunctionName: "worker-handler", ProfileName: "S3Performancer", CountInSingleInstance: 8, RawJson: `{ "FileSize" : 10}`},
+		//EventParams{Iteration: 100, LambdaFunctionName: "worker-handler", ProfileName: "S3Performancer", CountInSingleInstance: 8, RawJson: `{ "FileSize" : 11}`},
+		//EventParams{Iteration: 100, LambdaFunctionName: "worker-handler", ProfileName: "S3Performancer", CountInSingleInstance: 8, RawJson: `{ "FileSize" : 12}`},
+		//EventParams{Iteration: 100, LambdaFunctionName: "worker-handler", ProfileName: "S3Performancer", CountInSingleInstance: 8, RawJson: `{ "FileSize" : 13}`},
 	}
 	fmt.Println("Start ...")
 	results := [][]byte{}
@@ -272,7 +291,7 @@ func main() {
 	reports := []ReportFiles{}
 	for idx, item := range results {
 		fc := getFunctionConfigByName(params[idx].LambdaFunctionName)
-		info := ReportInfo{ProfileName: params[idx].ProfileName, MemorySizeInMB: *fc.MemorySize, ConcurrentNumber: params[idx].CountInSingleInstance, RawJson: params[idx].RawJson}
+		info := ReportInfo{ProfileName: params[idx].TaskName, MemorySizeInMB: *fc.MemorySize, ConcurrentNumber: params[idx].ConcurrencyForEachTask, RawJson: params[idx].RawJson}
 		reports = append(reports, generate_report(item, info))
 	}
 

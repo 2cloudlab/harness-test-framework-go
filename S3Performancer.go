@@ -26,10 +26,10 @@ func (s3P S3Performancer) Start(ctx context.Context, params EventParams) []byte 
 	}
 	object_level := int(m["FileSize"].(float64))
 	sample_data_key := getObjectName(object_level)
-	testTasks := make(chan int, params.CountInSingleInstance)
-	tasksNumber := 100
+	testTasks := make(chan int, params.ConcurrencyForEachTask)
+	tasksNumber := params.NumberOfSamples
 	samples := make(chan int, tasksNumber)
-	for g := 0; g < params.CountInSingleInstance; g++ {
+	for g := 0; g < params.ConcurrencyForEachTask; g++ {
 		go func(tasks <-chan int, results chan<- int) {
 			for range tasks {
 				result, err := g_s3_service.GetObject(&s3.GetObjectInput{
@@ -85,7 +85,7 @@ type dataPoint struct {
 
 func (d DefaultPerformancer) Start(ctx context.Context, params EventParams) []byte {
 	results := []dataPoint{}
-	for i := 0; i < params.CountInSingleInstance; i++ {
+	for i := 0; i < params.ConcurrencyForEachTask; i++ {
 		rand.Seed(time.Now().UnixNano())
 		min := 10
 		max := 30

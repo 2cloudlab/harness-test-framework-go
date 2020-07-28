@@ -20,7 +20,7 @@ func LambdaHandler(ctx context.Context, params EventParams) (string, error) {
 		InvocationType: aws.String("Event"),
 		Payload:        payLoadInJson,
 	}
-	for i := 0; i < params.Iteration; i++ {
+	for i := 0; i < params.NumberOfTasks; i++ {
 		_, err := g_lambda_service.Invoke(input)
 		if err != nil {
 			recordError(err)

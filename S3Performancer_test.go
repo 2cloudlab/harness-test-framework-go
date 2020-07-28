@@ -27,7 +27,7 @@ func (mctx MockContext) Value(key interface{}) interface{} {
 func TestS3PerformancerStart(t *testing.T) {
 	init_shared_resource()
 	performer := S3Performancer{}
-	params := EventParams{CountInSingleInstance: 2, RawJson: `{ "FileSize" : 1}`}
+	params := EventParams{ConcurrencyForEachTask: 2, RawJson: `{ "FileSize" : 1}`}
 	context := MockContext{}
 	fmt.Println(string(performer.Start(context, params)))
 }

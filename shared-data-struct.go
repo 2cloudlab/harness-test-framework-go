@@ -12,12 +12,13 @@ import (
 )
 
 type EventParams struct {
-	RequestID             string `json:"requestID"`
-	LambdaFunctionName    string `json:"functionName"`
-	ProfileName           string `json:"profileName"`
-	Iteration             int    `json:"iteration"`
-	CountInSingleInstance int    `json:"countInSingleInstance"`
-	RawJson               string `json:"rawJson"`
+	RequestID              string `json:"RequestID"`
+	LambdaFunctionName     string `json:"FunctionName"`
+	TaskName               string `json:"TaskName"`
+	NumberOfTasks          int    `json:"NumberOfTasks"`
+	ConcurrencyForEachTask int    `json:"ConcurrencyForEachTask"`
+	RawJson                string `json:"RawJson"`
+	NumberOfSamples        int    `json:"NumberOfSamples"`
 }
 
 func recordError(err error) {

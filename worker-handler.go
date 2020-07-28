@@ -65,7 +65,7 @@ func getPerformer(name string) *Performancer {
 }
 
 func LambdaHandler(ctx context.Context, params EventParams) (int, error) {
-	performer = getPerformer(params.ProfileName)
+	performer = getPerformer(params.TaskName)
 	lc, _ := lambdacontext.FromContext(ctx)
 	Record(getReportName(params.RequestID, lc.AwsRequestID), (*performer).Start(ctx, params))
 	return 0, nil
