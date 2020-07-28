@@ -14,7 +14,25 @@ All you require to do are:
 1. Write a code snippet for your scenario in Go.
 2. Tune the test parameters & start the tests.
 
-After that, a few reports, including stats and raw reports, will be automatically generated in `.csv` format. You can import it into sheet to compare the benchmarks.
+After that, a few reports, including stats and raw reports, will be automatically generated in `.csv` format. You can import it into sheet to compare the benchmarks or visualize them.
+
+## Prerequisites
+
+Before you use the framework, please install the following tools on top of **Linux OS**, and pay attention to their versions.
+
+* Install Go, and make sure its version is at least `v1.14`. After successfully install, type the following command to make sure you are on the right version:
+
+```bash
+$ go version
+go version go1.14.2 linux/amd64
+```
+
+* Install Terraform, and make sure its version is `v0.12.19`. Type the following command to make sure you are on the right version:
+
+```bash
+terraform version
+Terraform v0.12.19
+```
 
 ## Usage
 

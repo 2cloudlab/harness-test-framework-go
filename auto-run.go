@@ -256,9 +256,9 @@ func main() {
 	upload()
 	// launch Lambda Function
 	params := []EventParams{
-		EventParams{NumberOfTasks: 6, LambdaFunctionName: "worker-handler", TaskName: "DefaultPerformancer", ConcurrencyForEachTask: 2, NumberOfSamples: 10},
-		//EventParams{Iteration: 7, LambdaFunctionName: "worker-handler", ProfileName: "DefaultPerformancer", CountInSingleInstance: 2},
-		//EventParams{Iteration: 100, LambdaFunctionName: "worker-handler", ProfileName: "S3Performancer", CountInSingleInstance: 8, RawJson: `{ "FileSize" : 7}`},
+		//EventParams{NumberOfTasks: 6, LambdaFunctionName: "worker-handler", TaskName: "DefaultPerformancer", ConcurrencyForEachTask: 2, NumberOfSamples: 10},
+		//EventParams{NumberOfTasks: 7, LambdaFunctionName: "worker-handler", TaskName: "DefaultPerformancer", ConcurrencyForEachTask: 2},
+		EventParams{NumberOfTasks: 9, LambdaFunctionName: "worker-handler", TaskName: "S3Performancer", ConcurrencyForEachTask: 4, NumberOfSamples: 10, RawJson: `{ "FileSize" : 7}`},
 		//EventParams{Iteration: 100, LambdaFunctionName: "worker-handler", ProfileName: "S3Performancer", CountInSingleInstance: 8, RawJson: `{ "FileSize" : 8}`},
 		//EventParams{Iteration: 100, LambdaFunctionName: "worker-handler", ProfileName: "S3Performancer", CountInSingleInstance: 8, RawJson: `{ "FileSize" : 9}`},
 		//EventParams{Iteration: 100, LambdaFunctionName: "worker-handler", ProfileName: "S3Performancer", CountInSingleInstance: 8, RawJson: `{ "FileSize" : 10}`},
