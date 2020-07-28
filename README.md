@@ -90,7 +90,6 @@ func (s3P S3Performancer) Init() {
 registerPerformancer("S3Performancer", func() Performancer {
     return S3Performancer{}
 })
-}
 ```
 
 The other is `config.json`, which contains parameters you specify to control Task scheduler and Task. The format is shown below:
