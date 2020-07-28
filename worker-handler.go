@@ -44,20 +44,31 @@ func Record(key string, value []byte) {
 }
 
 var performers = map[string]*Performancer{}
+var classes = map[string]func() Performancer{}
 
-func getPerformer(name string) *Performancer {
+func registerPerformancer(name string, f func() Performancer) {
+	if _, ok := classes[name]; ok {
+		return
+	}
+
+	classes[name] = f
+}
+
+func registerAll() {
+	registerPerformancer("DefaultPerformancer", func() Performancer {
+		return DefaultPerformancer{}
+	})
+	registerPerformancer("S3Performancer", func() Performancer {
+		return S3Performancer{}
+	})
+}
+
+func getPerformancer(name string) *Performancer {
 	if val, ok := performers[name]; ok {
 		return val
 	}
 	fmt.Println("Init performancer first time")
-	classes := map[string]func() Performancer{
-		"S3Performancer": func() Performancer {
-			return S3Performancer{}
-		},
-		"DefaultPerformancer": func() Performancer {
-			return DefaultPerformancer{}
-		},
-	}
+	registerAll()
 	tmp := classes[name]()
 	tmp.Init()
 	performers[name] = &tmp
@@ -65,7 +76,7 @@ func getPerformer(name string) *Performancer {
 }
 
 func LambdaHandler(ctx context.Context, params EventParams) (int, error) {
-	performer = getPerformer(params.TaskName)
+	performer = getPerformancer(params.TaskName)
 	lc, _ := lambdacontext.FromContext(ctx)
 	Record(getReportName(params.RequestID, lc.AwsRequestID), (*performer).Start(ctx, params))
 	return 0, nil

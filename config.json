@@ -12,5 +12,17 @@
         "ConcurrencyForEachTask" : 2,
         "NumberOfSamples" : 10,
         "RawJson": "{\"FileSize\" : 8}"
+    },
+    {
+        "NumberOfTasks" : 10,
+        "TaskName" : "XXXPerformancer",
+        "ConcurrencyForEachTask" : 6,
+        "NumberOfSamples" : 100
+    },
+    {
+        "NumberOfTasks" : 10,
+        "TaskName" : "XXXPerformancer",
+        "ConcurrencyForEachTask" : 6,
+        "NumberOfSamples" : 100
     }
 ]
