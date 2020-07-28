@@ -14,7 +14,7 @@ All you require to do are:
 1. Write a code snippet for your scenario in Go.
 2. Tune the test parameters & start the tests.
 
-After that, a few reports, including stats and raw reports, will be automatically generated in `.csv` format. You can import it into sheet to compare the benchmarks or visualize them.
+After that, a few reports, such as `raw-data-<TaskName>-<DateTime>-<TaskId>.csv` and `report-<TaskName>-<DateTime>-<TaskId>.csv`, will be automatically generated in `reports` folder. `report-<TaskName>-<DateTime>-<TaskId>.csv` file contains some stats information, such as avg, min, max, p25, p50, p75, p90 and p99, which are calculated beyond the `raw-data-<TaskName>-<DateTime>-<TaskId>.csv` file. In addition, it will merged reports base on the same `TaskName` but with different test conditions, the merged reports name is something like `raw-data-<TaskName>-<DateTime>.csv` and `report-<TaskName>-<DateTime>.csv`, you can import them into sheet to compare the benchmarks or visualize them.
 
 ## Prerequisites
 
@@ -34,37 +34,43 @@ terraform version
 Terraform v0.12.19
 ```
 
+* Install [dep](https://golang.github.io/dep/docs/installation.html)
+
 ## Usage
 
-1. Build from source
+* The first time
+
+Only execute the following command at the first time when using Test Harness Framework.
 
 ```bash
 cd test-harness-framework-go
 dep ensure
-GOOS="linux" GOARCH="amd64" go build -ldflags "-w -s" worker-handler.go shared-data-struct.go *Performancer.go
 ```
 
-2. Zip the generated executable bin
+* Build from source
 
 ```bash
-zip worker-handler.zip worker-handler
+make build
 ```
 
-3. Provision Infrustructure
+* Provision Infrustructure
 
 ```bash
-terraform init
-terraform apply -var="bucket_name=<replace-with-your-bucket-name>"
+make auto_provision BUCKET_NAME="<replace-with-your-bucket-name>"
 ```
 
-4. Launch Test Harness & collect reports
+* Launch Test Harness & collect reports
+
+The following command will start your Tasks in parallel, you should tell it from where(`BUCKET_NAME="test-reports-repository"`) and when(`TIME_TO_WAIT="2"`) to start collecting reports.
 
 ```bash
-go run auto-run.go shared-data-struct.go -bucket-name <your-provisioned-bucket-name-in-step-3>
+make run BUCKET_NAME="<replace-with-your-bucket-name>" TIME_TO_WAIT="<time-to-wait-before-collecting-reports-in-minute>"
 ```
 
-5. Destroy resources
+* Destroy resources
+
+If you no longer use the provisioned resources in step 2, make sure to call the following command to destroy them, so that you are not charged by AWS.
 
 ```bash
-terraform destroy -var="bucket_name=<replace-with-your-bucket-name>"
+make auto_destroy BUCKET_NAME="<replace-with-your-bucket-name>"
 ```
