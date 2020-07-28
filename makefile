@@ -7,8 +7,11 @@ build: ## Build the binary file
 clear: ## Clear binary file
 	@rm test-harness-framework worker-handler test-harness-framework.zip worker-handler.zip
 
+test: ## Test deployment
+	@go run auto-run.go shared-data-struct.go -bucket-name=$$BUCKET_NAME -time-to-wait=1 -test-deployment=true
+
 run: ## Run to generate reports
-	@go run auto-run.go shared-data-struct.go -bucket-name $$BUCKET_NAME -time-to-wait $$TIME_TO_WAIT
+	@go run auto-run.go shared-data-struct.go -bucket-name=$$BUCKET_NAME -time-to-wait=$$TIME_TO_WAIT
 
 auto_provision: ## Provision infrustructures
 	@terraform init

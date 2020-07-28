@@ -6,6 +6,7 @@ import (
 	"flag"
 	"fmt"
 	"io/ioutil"
+	"os"
 	"sort"
 	"strings"
 	"time"
@@ -243,6 +244,7 @@ var g_bucket_name string
 func main() {
 	timeToWaitArg := flag.Int("time-to-wait", 1, "Time to wait when begins to get reports in S3, unit by Minute.")
 	bucketNameArg := flag.String("bucket-name", "", "Bucket name to store generated reports.")
+	testDeploymentArg := flag.Bool("test-deployment", false, "User it to test whether the infrastructures are deployed properly, set true to validate.")
 	flag.Parse()
 	if len(*bucketNameArg) == 0 {
 		fmt.Println("Please provide bucket name, for example, enter the following command:")
@@ -255,17 +257,35 @@ func main() {
 	// upload data to S3
 	upload()
 	// launch Lambda Function
-	params := []EventParams{
-		//EventParams{NumberOfTasks: 6, LambdaFunctionName: "worker-handler", TaskName: "DefaultPerformancer", ConcurrencyForEachTask: 2, NumberOfSamples: 10},
-		//EventParams{NumberOfTasks: 7, LambdaFunctionName: "worker-handler", TaskName: "DefaultPerformancer", ConcurrencyForEachTask: 2},
-		EventParams{NumberOfTasks: 9, LambdaFunctionName: "worker-handler", TaskName: "S3Performancer", ConcurrencyForEachTask: 4, NumberOfSamples: 10, RawJson: `{ "FileSize" : 7}`},
-		//EventParams{Iteration: 100, LambdaFunctionName: "worker-handler", ProfileName: "S3Performancer", CountInSingleInstance: 8, RawJson: `{ "FileSize" : 8}`},
-		//EventParams{Iteration: 100, LambdaFunctionName: "worker-handler", ProfileName: "S3Performancer", CountInSingleInstance: 8, RawJson: `{ "FileSize" : 9}`},
-		//EventParams{Iteration: 100, LambdaFunctionName: "worker-handler", ProfileName: "S3Performancer", CountInSingleInstance: 8, RawJson: `{ "FileSize" : 10}`},
-		//EventParams{Iteration: 100, LambdaFunctionName: "worker-handler", ProfileName: "S3Performancer", CountInSingleInstance: 8, RawJson: `{ "FileSize" : 11}`},
-		//EventParams{Iteration: 100, LambdaFunctionName: "worker-handler", ProfileName: "S3Performancer", CountInSingleInstance: 8, RawJson: `{ "FileSize" : 12}`},
-		//EventParams{Iteration: 100, LambdaFunctionName: "worker-handler", ProfileName: "S3Performancer", CountInSingleInstance: 8, RawJson: `{ "FileSize" : 13}`},
+	var params []EventParams
+	fmt.Println(*testDeploymentArg)
+	if *testDeploymentArg {
+		params = []EventParams{
+			EventParams{NumberOfTasks: 6, LambdaFunctionName: "worker-handler", TaskName: "DefaultPerformancer", ConcurrencyForEachTask: 2, NumberOfSamples: 10},
+		}
+	} else {
+		// Open our jsonFile
+		jsonFile, err := os.Open("config.json")
+		// if we os.Open returns an error then handle it
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		// read our opened jsonFile as a byte array.
+		byteValue, err := ioutil.ReadAll(jsonFile)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+
+		// we unmarshal our byteArray which contains our
+		// jsonFile's content into 'users' which we defined above
+		json.Unmarshal(byteValue, &params)
+		for i := 0; i < len(params); i++ {
+			params[i].LambdaFunctionName = "worker-handler"
+		}
 	}
+
 	fmt.Println("Start ...")
 	results := [][]byte{}
 	for _, p := range params {

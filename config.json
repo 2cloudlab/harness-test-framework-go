@@ -1,0 +1,16 @@
+[
+    {
+        "NumberOfTasks" : 6,
+        "TaskName" : "S3Performancer",
+        "ConcurrencyForEachTask" : 2,
+        "NumberOfSamples" : 10,
+        "RawJson": "{\"FileSize\" : 7}"
+    },
+    {
+        "NumberOfTasks" : 6,
+        "TaskName" : "S3Performancer",
+        "ConcurrencyForEachTask" : 2,
+        "NumberOfSamples" : 10,
+        "RawJson": "{\"FileSize\" : 8}"
+    }
+]
