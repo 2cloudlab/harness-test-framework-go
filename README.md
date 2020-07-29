@@ -20,7 +20,7 @@ In addition, it will merged reports base on the same `TaskName` but with differe
 
 And the corresponding visualization version is shown below:
 
-![](chart.png)
+![](chart.svg)
 
 ## Prerequisites
 
