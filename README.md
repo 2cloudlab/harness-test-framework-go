@@ -14,7 +14,7 @@ After that, a few reports, such as `raw-data-<TaskName>-<DateTime>-<TaskId>.csv`
 
 `report-<TaskName>-<DateTime>-<TaskId>.csv` file contains some stats information, such as avg, min, max, p25, p50, p75, p90 and p99, which are calculated beyond the `raw-data-<TaskName>-<DateTime>-<TaskId>.csv` file.
 
-In addition, it will merged reports base on the same `TaskName` but with different test conditions, the merged reports name is something like `raw-data-<TaskName>-<DateTime>.csv` and `report-<TaskName>-<DateTime>.csv`, you can import them into sheet to compare the benchmarks or visualize them. Below is the stats results of using Test Harness Framework to test the laytency of `GetObject` operation provided by AWS S3.
+In addition, it will merged reports base on the same `TaskName` but with different test conditions, the merged reports name is something like `raw-data-<TaskName>-<DateTime>.csv` and `report-<TaskName>-<DateTime>.csv`, you can import them into sheet to compare the benchmarks or visualize them. Below is the stats results of using Test Harness Framework to test the laytency(in Seconds) of `GetObject` GO API provided by AWS S3 under different file size(64KB, 128KB, 256KB).
 
 ![](GetObjectStats.png)
 
@@ -141,7 +141,13 @@ It means that you launch the same performance test(`S3Performancer`), but do 3 e
 
 For better understand the usage of these fields, you should check out the demo in `S3Performancer.go`.
 
-## Usage
+## Steps to follow
+
+If you add or modify any of `*Performancer.go` files, you must execute 1 and 2 steps before step 4.
+
+If you just want to tune the parameters and collect stats reports, just execute step 4.
+
+If you finish the test jobs and decide not to use the framework any more, make sure to clear the resources by running step 5 so that you are not charged by AWS.
 
 1. Build from source
 
