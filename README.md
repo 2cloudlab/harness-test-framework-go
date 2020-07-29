@@ -18,6 +18,8 @@ In addition, it will merged reports base on the same `TaskName` but with differe
 
 ![](GetObjectStats.png)
 
+The table shows that the test is executed in a Lambda function with 128 MB memory and the `GetObject` GO API is issued concurrently with 2 go routines.
+
 And the corresponding visualization version is shown below:
 
 ![](chart.svg)
@@ -140,6 +142,15 @@ The above parameters contains 3 elements, and each has the following fields:
 It means that you launch the same performance test(`S3Performancer`), but do 3 experiments under different `FileSize` conditions. Each experiment executes `S3Performancer` 6 times on Task instances, each instance will boost 2 concurrencies and issue 10 operations.
 
 For better understand the usage of these fields, you should check out the demo in `S3Performancer.go`.
+
+**Note**: This framework will automatically upload 16 objects, each with object size varies from 2^0 to 2^15 KB. You can use the following function to get the object key and use it for getting object:
+
+```go
+// get 1 KB object's key
+getObjectName(1)
+// get 32 MB object's key
+getObjectName(16)
+```
 
 ## Steps to follow
 
