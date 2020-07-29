@@ -254,8 +254,6 @@ func main() {
 
 	g_bucket_name = *bucketNameArg
 	init_shared_resource()
-	// upload data to S3
-	upload()
 	// launch Lambda Function
 	var params []EventParams
 	if *testDeploymentArg {
