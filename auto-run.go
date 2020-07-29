@@ -258,7 +258,6 @@ func main() {
 	upload()
 	// launch Lambda Function
 	var params []EventParams
-	fmt.Println(*testDeploymentArg)
 	if *testDeploymentArg {
 		params = []EventParams{
 			EventParams{NumberOfTasks: 6, LambdaFunctionName: "worker-handler", TaskName: "DefaultPerformancer", ConcurrencyForEachTask: 2, NumberOfSamples: 10},

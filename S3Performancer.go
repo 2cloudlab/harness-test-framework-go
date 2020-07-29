@@ -73,7 +73,7 @@ func (s3P S3Performancer) Start(ctx context.Context, params EventParams) map[str
 		l := <-operationResults
 		latencyInSeconds = append(latencyInSeconds, l.Seconds())
 	}
-	metricName := fmt.Sprintf("File Size: %s", getObjectSize(object_level))
+	metricName := fmt.Sprintf("Latency of GetObject(File Size: %s)", getObjectSize(object_level))
 	// Making a json object, the format is something like:
 	// { "metricName" : dataPoints []float64 }
 	return map[string][]float64{metricName: latencyInSeconds}
