@@ -86,12 +86,17 @@ func recordError(err error) {
 	}
 }
 
-func getObjectName(i int) string {
+func getObjectName(i uint8) string {
 	return fmt.Sprintf("test-data/object-%d-1024-KB", i)
 }
 
 func getObjectSize(i uint8) string {
-	return fmt.Sprintf("%d KB", 1024*(1<<(i-1)))
+	s := 1 << (i - 1)
+	if i > 10 {
+		return fmt.Sprintf("%d MB", s/1024)
+	} else {
+		return fmt.Sprintf("%d KB", s)
+	}
 }
 
 func getReportName(prefix string, key string) string {

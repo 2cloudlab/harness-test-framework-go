@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"context"
+	"encoding/json"
 	"fmt"
 	"os"
 
@@ -15,7 +16,7 @@ import (
 
 type Performancer interface {
 	Init()
-	Start(ctx context.Context, params EventParams) []byte
+	Start(ctx context.Context, params EventParams) map[string][]float64
 }
 
 var performer *Performancer
@@ -78,7 +79,10 @@ func getPerformancer(name string) *Performancer {
 func LambdaHandler(ctx context.Context, params EventParams) (int, error) {
 	performer = getPerformancer(params.TaskName)
 	lc, _ := lambdacontext.FromContext(ctx)
-	Record(getReportName(params.RequestID, lc.AwsRequestID), (*performer).Start(ctx, params))
+	r, err := json.Marshal((*performer).Start(ctx, params))
+	if err == nil {
+		Record(getReportName(params.RequestID, lc.AwsRequestID), r)
+	}
 	return 0, nil
 }
 

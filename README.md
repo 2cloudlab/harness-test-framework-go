@@ -96,7 +96,7 @@ registerPerformancer("S3Performancer", func() Performancer {
 })
 ```
 
-The other is `config.json`, which contains parameters you specify to control Task scheduler and Task. The format is shown below:
+The other is `config.json`, which contains parameters you specify to control Task scheduler and Task. The format is `json` and the details is shown below:
 
 ```json
 [
@@ -115,19 +115,26 @@ The other is `config.json`, which contains parameters you specify to control Tas
         "RawJson": "{\"FileSize\" : 8}"
     },
     {
-        "NumberOfTasks" : 10,
-        "TaskName" : "XXXPerformancer",
-        "ConcurrencyForEachTask" : 6,
-        "NumberOfSamples" : 100
-    },
-    {
-        "NumberOfTasks" : 10,
-        "TaskName" : "XXXPerformancer",
-        "ConcurrencyForEachTask" : 6,
-        "NumberOfSamples" : 100
+        "NumberOfTasks" : 6,
+        "TaskName" : "S3Performancer",
+        "ConcurrencyForEachTask" : 2,
+        "NumberOfSamples" : 10,
+        "RawJson": "{\"FileSize\" : 9}"
     }
 ]
 ```
+
+The above parameters contains 3 elements, and each has the following fields:
+
+1. NumberOfTasks(required), which is used for controling the number of tasks expected to execute
+2. TaskName(required), which is used for specifing the performance test to execute
+3. ConcurrencyForEachTask(required), which is used for controling the concurrency a task can boost
+4. NumberOfSamples(optional), which is used for controling the number of operations a task can issue
+5. RawJson(optional), which is expected to be a custom `json` string
+
+It means that you launch the same performance test(`S3Performancer`), but do 3 experiments under different `FileSize` conditions. Each experiment executes `S3Performancer` 6 times on Task instances, each instance will boost 2 concurrencies and issue 10 operations.
+
+For better understand the usage of these fields, you should check out the demo in `S3Performancer.go`.
 
 ## Usage
 

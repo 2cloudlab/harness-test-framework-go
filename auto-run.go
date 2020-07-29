@@ -21,8 +21,9 @@ import (
 func upload() {
 	// generate 16 objects with size range from 1KB to 32 MB, increase by a factor of 2
 	initSizeInBytes := 1024
-	for i := 0; i < 16; i++ {
-		subKey := getObjectName(i + 1)
+	var i uint8
+	for i = 1; i <= 16; i++ {
+		subKey := getObjectName(i)
 		_, err := g_s3_service.HeadObject(&s3.HeadObjectInput{
 			Bucket: aws.String(g_bucket_name),
 			Key:    aws.String(subKey),
@@ -84,13 +85,13 @@ func generate_report(prefix []byte, info ReportInfo) ReportFiles {
 	fmt.Println("parse headers ...")
 	headersToMap := map[string][]float64{}
 	headers := []string{}
-	m := []interface{}{}
+	m := map[string][]float64{}
 	err := json.Unmarshal(report_units[0], &m)
 	if err != nil {
 		recordError(err)
 		return finalReportFiles
 	}
-	for key, _ := range m[0].(map[string]interface{}) {
+	for key, _ := range m {
 		headersToMap[key] = []float64{}
 		headers = append(headers, key)
 	}
@@ -98,16 +99,15 @@ func generate_report(prefix []byte, info ReportInfo) ReportFiles {
 	// aggregate all report units
 	fmt.Println("aggregate all report units ...")
 	for _, item := range report_units {
-		m = []interface{}{}
+		m = map[string][]float64{}
 		err := json.Unmarshal(item, &m)
 		if err != nil {
 			recordError(err)
+			continue
 		}
 
-		for _, obj := range m {
-			for key, val := range obj.(map[string]interface{}) {
-				headersToMap[key] = append(headersToMap[key], val.(float64))
-			}
+		for key, objs := range m {
+			headersToMap[key] = append(headersToMap[key], objs...)
 		}
 	}
 
