@@ -18,7 +18,7 @@ In addition, it will merged reports base on the same `TaskName` but with differe
 
 ![](GetObjectStats.png)
 
-The table shows that the test is executed in a Lambda function with 128 MB memory and the `GetObject` GO API is issued concurrently with 2 go routines.
+The table shows that the test is executed in a Lambda function with 128 MB memory and the `GetObject` GO API is issued concurrently by 2 go routines.
 
 And the corresponding visualization version is shown below:
 
@@ -42,7 +42,9 @@ terraform version
 Terraform v0.12.19
 ```
 
-* Install [dep](https://golang.github.io/dep/docs/installation.html)
+* Install [dep](https://golang.github.io/dep/docs/installation.html).
+
+* Install [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2.html) and configure the credentials info
 
 * Clone the framework and prepare dependencies
 
