@@ -170,9 +170,13 @@ make build
 
 2. Provision Infrustructure
 
+Execute the following command to provision infrastructures:
+
 ```bash
 make auto_provision BUCKET_NAME="<replace-with-your-bucket-name>"
 ```
+
+After successfully provisioning infrastructures, you should wait a few minutes before AWS can make these resources available to you.
 
 3. Test deployment
 
