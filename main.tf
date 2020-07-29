@@ -197,7 +197,7 @@ resource "aws_s3_bucket" "b" {
 resource "aws_s3_bucket_object" "object" {
   for_each     = fileset("test-data/", "*")
   bucket = aws_s3_bucket.b.id
-  key    = each.value
+  key    = "test-data/${each.value}"
   source = "test-data/${each.value}"
 
   # The filemd5() function is available in Terraform 0.11.12 and later
