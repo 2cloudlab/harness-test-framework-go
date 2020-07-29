@@ -5,7 +5,7 @@ terraform {
 
 provider "aws" {
   version = "= 2.58"
-  region  = "ap-northeast-1"
+  # region  = "ap-northeast-1"
 }
 
 data "aws_caller_identity" "current" {}

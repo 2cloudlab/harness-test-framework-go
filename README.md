@@ -14,7 +14,13 @@ After that, a few reports, such as `raw-data-<TaskName>-<DateTime>-<TaskId>.csv`
 
 `report-<TaskName>-<DateTime>-<TaskId>.csv` file contains some stats information, such as avg, min, max, p25, p50, p75, p90 and p99, which are calculated beyond the `raw-data-<TaskName>-<DateTime>-<TaskId>.csv` file.
 
-In addition, it will merged reports base on the same `TaskName` but with different test conditions, the merged reports name is something like `raw-data-<TaskName>-<DateTime>.csv` and `report-<TaskName>-<DateTime>.csv`, you can import them into sheet to compare the benchmarks or visualize them.
+In addition, it will merged reports base on the same `TaskName` but with different test conditions, the merged reports name is something like `raw-data-<TaskName>-<DateTime>.csv` and `report-<TaskName>-<DateTime>.csv`, you can import them into sheet to compare the benchmarks or visualize them. Below is the stats results of using Test Harness Framework to test the laytency of `GetObject` operation provided by AWS S3.
+
+![](GetObjectStats.png)
+
+And the corresponding visualization version is shown below:
+
+![](chart.png)
 
 ## Prerequisites
 
@@ -73,14 +79,13 @@ package main
 type S3Performancer struct {
 }
 
-func (s3P S3Performancer) Start(ctx context.Context, params EventParams) []byte {
+func (s3P S3Performancer) Start(ctx context.Context, params EventParams) map[string][]float64 {
     // do performance test
     // and return data points for each metric, something like
-    //`[
-    //    {"Metric 1": %f, "Metric 2": %f},    <----- data point 1
-    //    {"Metric 1": %f, "Metric 2": %f},    <----- data point 2
-    //    {"Metric 1": %f, "Metric 2": %f}     <----- data point 3
-    //]`
+    //{
+    //    "metricName1" : dataPoints1 []float64,
+    //    "metricName2" : dataPoints2 []float64,
+    //}
 }
 
 func (s3P S3Performancer) Init() {

@@ -1,0 +1,10 @@
+Memory size: 128, Concurrent number: 2, FileSize: 8.000000
+Stats Metrics,Latency of GetObject(File Size: 128 KB)
+avg,0.063555
+min,0.016371
+p25,0.033463
+p50,0.040619
+p75,0.079148
+p90,0.100546
+p99,0.288790
+max,0.347156
