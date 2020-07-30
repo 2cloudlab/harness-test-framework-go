@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
@@ -104,6 +105,7 @@ func getReportName(prefix string, key string) string {
 }
 
 func downloadFile(bucket string, key string) []byte {
+	fmt.Println("worker handler request id is ", strings.Split(key, "/")[1])
 	buf := aws.NewWriteAtBuffer([]byte{})
 	_, err := g_s3_downloader.Download(buf,
 		&s3.GetObjectInput{
