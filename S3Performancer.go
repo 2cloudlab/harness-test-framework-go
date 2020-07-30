@@ -94,7 +94,7 @@ func (d DefaultPerformancer) Start(ctx context.Context, params EventParams) map[
 	results := map[string][]float64{
 		totalVirtualMemoryInMB: []float64{},
 	}
-	results[totalVirtualMemoryInMB] = append(results[totalVirtualMemoryInMB], float64(m.TotalAlloc/1024/1024))
+	results[totalVirtualMemoryInMB] = append(results[totalVirtualMemoryInMB], float64(m.Sys/1024/1024))
 
 	return results
 }
