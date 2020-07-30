@@ -2,8 +2,8 @@
 
 This is a Test Harness Framework(written in Go) based on AWS Lambda Function. It can be used in the following scenarios:
 
-1. Launch a large number of loaders to do performance tests against your services.
-2. Do performance tests on AWS services, such as S3, DynamoDB etc.
+1. Launch a large number of loaders to do performance tests against your services or AWS services.
+2. Observe the status of your Lambda function, and optimize it.
 
 All you require to do are:
 
