@@ -68,8 +68,6 @@ func getPerformancer(name string) *Performancer {
 	if val, ok := performers[name]; ok {
 		return val
 	}
-	fmt.Println("Init performancer first time")
-	registerAll()
 	tmp := classes[name]()
 	tmp.Init()
 	performers[name] = &tmp
@@ -87,6 +85,8 @@ func LambdaHandler(ctx context.Context, params EventParams) (int, error) {
 }
 
 func main() {
+	fmt.Println("Init performancer for the first time")
 	init_shared_resource()
+	registerAll()
 	lambda_context.Start(LambdaHandler)
 }
