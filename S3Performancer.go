@@ -5,8 +5,8 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"math/rand"
 	"os"
+	"runtime"
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -88,22 +88,13 @@ type DefaultPerformancer struct {
 }
 
 func (d DefaultPerformancer) Start(ctx context.Context, params EventParams) map[string][]float64 {
+	var m runtime.MemStats
+	runtime.ReadMemStats(&m)
+	totalVirtualMemoryInMB := "Sys(MB)"
 	results := map[string][]float64{
-		"TotalSizeInBytes": []float64{},
-		"Latency":          []float64{},
+		totalVirtualMemoryInMB: []float64{},
 	}
-	for i := 0; i < params.ConcurrencyForEachTask; i++ {
-		rand.Seed(time.Now().UnixNano())
-		min := 10
-		max := 30
-		sizeInBytes := rand.Intn(max-min+1) + min
-		fmt.Println(sizeInBytes)
-		laytency := rand.Float64()
-		fmt.Println(laytency)
-		rand.Seed(time.Now().UnixNano())
-		results["TotalSizeInBytes"] = append(results["TotalSizeInBytes"], float64(sizeInBytes))
-		results["Latency"] = append(results["Latency"], laytency)
-	}
+	results[totalVirtualMemoryInMB] = append(results[totalVirtualMemoryInMB], float64(m.TotalAlloc/1024/1024))
 
 	return results
 }

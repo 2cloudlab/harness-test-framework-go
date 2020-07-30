@@ -258,7 +258,7 @@ func main() {
 	var params []EventParams
 	if *testDeploymentArg {
 		params = []EventParams{
-			EventParams{NumberOfTasks: 6, LambdaFunctionName: "worker-handler", TaskName: "DefaultPerformancer", ConcurrencyForEachTask: 2, NumberOfSamples: 10},
+			EventParams{NumberOfTasks: 6, LambdaFunctionName: "worker-handler", TaskName: "DefaultPerformancer"},
 		}
 	} else {
 		// Open our jsonFile

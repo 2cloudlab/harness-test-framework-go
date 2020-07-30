@@ -137,7 +137,7 @@ The above parameters contains 3 elements, and each has the following fields:
 
 1. NumberOfTasks(required), which is used for controling the number of tasks expected to execute
 2. TaskName(required), which is used for specifing the performance test to execute
-3. ConcurrencyForEachTask(required), which is used for controling the concurrency a task can boost
+3. ConcurrencyForEachTask(optional), which is used for controling the concurrency a task can boost
 4. NumberOfSamples(optional), which is used for controling the number of operations a task can issue
 5. RawJson(optional), which is expected to be a custom `json` string
 
