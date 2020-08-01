@@ -8,7 +8,7 @@ This is a Test Harness Framework(written in Go) based on AWS Lambda Function. It
 All you require to do are:
 
 1. Write a code snippet for your scenario in Go.
-2. Tune the test parameters & start the tests.
+2. Tune the test parameters & start the tests & wait for metrics reports.
 
 After that, a few reports, such as `raw-data-<TaskName>-<DateTime>-<TaskId>.csv` and `report-<TaskName>-<DateTime>-<TaskId>.csv`, will be automatically generated in `reports` folder.
 
