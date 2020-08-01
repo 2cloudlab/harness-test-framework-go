@@ -14,7 +14,7 @@ After that, a few reports, such as `raw-data-<TaskName>-<DateTime>-<TaskId>.csv`
 
 `report-<TaskName>-<DateTime>-<TaskId>.csv` file contains some stats information, such as avg, min, max, p25, p50, p75, p90 and p99, which are calculated beyond the `raw-data-<TaskName>-<DateTime>-<TaskId>.csv` file.
 
-In addition, it will merged reports base on the same `TaskName` but with different test conditions, the merged reports name is something like `raw-data-<TaskName>-<DateTime>.csv` and `report-<TaskName>-<DateTime>.csv`, you can import them into sheet to compare the benchmarks or visualize them. Below is a chart that visualizes the stats laytency(in Seconds) of AWS S3 `GetObject` GO API issued in Lambda function(memory is 128MB) under different file size(1KB～32MB).
+In addition, it will merged reports base on the same `TaskName` but with different test conditions, the merged reports name is something like `raw-data-<TaskName>-<DateTime>.csv` and `report-<TaskName>-<DateTime>.csv`, you can import them into sheet to compare the benchmarks or visualize them. Below is a [chart](https://docs.google.com/spreadsheets/d/e/2PACX-1vRLXqNm56689PKUxu_AsMNOZ8wT3v2jBgaXEZjTRt2UPvXoKnCRjF2--NrerHIj6yZXNAOO3CIWjaJA/pubchart?oid=562990831&format=interactive) that visualizes the stats laytency(in Seconds) of AWS S3 `GetObject` GO API issued in Lambda function(memory is 128MB) under different file size(1KB～32MB).
 
 ![](chart.svg)
 
