@@ -1,23 +1,114 @@
 [
     {
-        "NumberOfTasks" : 6,
+        "NumberOfTasks" : 1,
         "TaskName" : "S3Performancer",
-        "ConcurrencyForEachTask" : 2,
+        "ConcurrencyForEachTask" : 1,
+        "NumberOfSamples" : 10,
+        "RawJson": "{\"FileSize\" : 1}"
+    },
+    {
+        "NumberOfTasks" : 1,
+        "TaskName" : "S3Performancer",
+        "ConcurrencyForEachTask" : 1,
+        "NumberOfSamples" : 10,
+        "RawJson": "{\"FileSize\" : 2}"
+    },
+    {
+        "NumberOfTasks" : 1,
+        "TaskName" : "S3Performancer",
+        "ConcurrencyForEachTask" : 1,
+        "NumberOfSamples" : 10,
+        "RawJson": "{\"FileSize\" : 3}"
+    },
+    {
+        "NumberOfTasks" : 1,
+        "TaskName" : "S3Performancer",
+        "ConcurrencyForEachTask" : 1,
+        "NumberOfSamples" : 10,
+        "RawJson": "{\"FileSize\" : 4}"
+    },
+    {
+        "NumberOfTasks" : 1,
+        "TaskName" : "S3Performancer",
+        "ConcurrencyForEachTask" : 1,
+        "NumberOfSamples" : 10,
+        "RawJson": "{\"FileSize\" : 5}"
+    },
+    {
+        "NumberOfTasks" : 1,
+        "TaskName" : "S3Performancer",
+        "ConcurrencyForEachTask" : 1,
+        "NumberOfSamples" : 10,
+        "RawJson": "{\"FileSize\" : 6}"
+    },
+    {
+        "NumberOfTasks" : 1,
+        "TaskName" : "S3Performancer",
+        "ConcurrencyForEachTask" : 1,
         "NumberOfSamples" : 10,
         "RawJson": "{\"FileSize\" : 7}"
     },
     {
-        "NumberOfTasks" : 6,
+        "NumberOfTasks" : 1,
         "TaskName" : "S3Performancer",
-        "ConcurrencyForEachTask" : 2,
+        "ConcurrencyForEachTask" : 1,
         "NumberOfSamples" : 10,
         "RawJson": "{\"FileSize\" : 8}"
     },
     {
-        "NumberOfTasks" : 6,
+        "NumberOfTasks" : 1,
         "TaskName" : "S3Performancer",
-        "ConcurrencyForEachTask" : 2,
+        "ConcurrencyForEachTask" : 1,
         "NumberOfSamples" : 10,
         "RawJson": "{\"FileSize\" : 9}"
+    },
+    {
+        "NumberOfTasks" : 1,
+        "TaskName" : "S3Performancer",
+        "ConcurrencyForEachTask" : 1,
+        "NumberOfSamples" : 10,
+        "RawJson": "{\"FileSize\" : 10}"
+    },
+    {
+        "NumberOfTasks" : 1,
+        "TaskName" : "S3Performancer",
+        "ConcurrencyForEachTask" : 1,
+        "NumberOfSamples" : 10,
+        "RawJson": "{\"FileSize\" : 11}"
+    },
+    {
+        "NumberOfTasks" : 1,
+        "TaskName" : "S3Performancer",
+        "ConcurrencyForEachTask" : 1,
+        "NumberOfSamples" : 10,
+        "RawJson": "{\"FileSize\" : 12}"
+    },
+    {
+        "NumberOfTasks" : 1,
+        "TaskName" : "S3Performancer",
+        "ConcurrencyForEachTask" : 1,
+        "NumberOfSamples" : 10,
+        "RawJson": "{\"FileSize\" : 13}"
+    },
+    {
+        "NumberOfTasks" : 1,
+        "TaskName" : "S3Performancer",
+        "ConcurrencyForEachTask" : 1,
+        "NumberOfSamples" : 10,
+        "RawJson": "{\"FileSize\" : 14}"
+    },
+    {
+        "NumberOfTasks" : 1,
+        "TaskName" : "S3Performancer",
+        "ConcurrencyForEachTask" : 1,
+        "NumberOfSamples" : 10,
+        "RawJson": "{\"FileSize\" : 15}"
+    },
+    {
+        "NumberOfTasks" : 1,
+        "TaskName" : "S3Performancer",
+        "ConcurrencyForEachTask" : 1,
+        "NumberOfSamples" : 10,
+        "RawJson": "{\"FileSize\" : 16}"
     }
 ]

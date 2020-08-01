@@ -14,13 +14,7 @@ After that, a few reports, such as `raw-data-<TaskName>-<DateTime>-<TaskId>.csv`
 
 `report-<TaskName>-<DateTime>-<TaskId>.csv` file contains some stats information, such as avg, min, max, p25, p50, p75, p90 and p99, which are calculated beyond the `raw-data-<TaskName>-<DateTime>-<TaskId>.csv` file.
 
-In addition, it will merged reports base on the same `TaskName` but with different test conditions, the merged reports name is something like `raw-data-<TaskName>-<DateTime>.csv` and `report-<TaskName>-<DateTime>.csv`, you can import them into sheet to compare the benchmarks or visualize them. Below is the stats results of using Test Harness Framework to test the laytency(in Seconds) of `GetObject` GO API provided by AWS S3 under different file size(64KB, 128KB, 256KB).
-
-![](GetObjectStats.png)
-
-The table shows that the test is executed in a Lambda function with 128 MB memory and the `GetObject` GO API is issued concurrently by 2 go routines.
-
-And the corresponding visualization version is shown below:
+In addition, it will merged reports base on the same `TaskName` but with different test conditions, the merged reports name is something like `raw-data-<TaskName>-<DateTime>.csv` and `report-<TaskName>-<DateTime>.csv`, you can import them into sheet to compare the benchmarks or visualize them. Below is a chart that visualizes the stats laytency(in Seconds) of AWS S3 `GetObject` GO API issued in Lambda function(memory is 128MB) under different file size(1KB～32MB).
 
 ![](chart.svg)
 

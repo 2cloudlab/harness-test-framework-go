@@ -1,0 +1,160 @@
+Memory size: 128, Concurrent number: 1, FileSize: 1.000000
+Stats Metrics,Latency of GetObject(File Size: 1 KB)
+avg,0.033359
+min,0.014062
+p25,0.016588
+p50,0.019967
+p75,0.020408
+p90,0.026226
+p99,0.092869
+max,0.159512
+Memory size: 128, Concurrent number: 1, FileSize: 2.000000
+Stats Metrics,Latency of GetObject(File Size: 2 KB)
+avg,0.115966
+min,0.014049
+p25,0.015194
+p50,0.019302
+p75,0.022159
+p90,0.030515
+p99,0.507603
+max,0.984691
+Memory size: 128, Concurrent number: 1, FileSize: 3.000000
+Stats Metrics,Latency of GetObject(File Size: 4 KB)
+avg,0.022509
+min,0.017299
+p25,0.019547
+p50,0.019977
+p75,0.020089
+p90,0.023458
+p99,0.034304
+max,0.045150
+Memory size: 128, Concurrent number: 1, FileSize: 4.000000
+Stats Metrics,Latency of GetObject(File Size: 8 KB)
+avg,0.104743
+min,0.008987
+p25,0.009880
+p50,0.019894
+p75,0.020154
+p90,0.029667
+p99,0.460003
+max,0.890338
+Memory size: 128, Concurrent number: 1, FileSize: 5.000000
+Stats Metrics,Latency of GetObject(File Size: 16 KB)
+avg,0.021271
+min,0.009007
+p25,0.018236
+p50,0.020007
+p75,0.022098
+p90,0.030192
+p99,0.031490
+max,0.032788
+Memory size: 128, Concurrent number: 1, FileSize: 6.000000
+Stats Metrics,Latency of GetObject(File Size: 32 KB)
+avg,0.112101
+min,0.015421
+p25,0.019444
+p50,0.020087
+p75,0.030650
+p90,0.052883
+p99,0.472526
+max,0.892168
+Memory size: 128, Concurrent number: 1, FileSize: 7.000000
+Stats Metrics,Latency of GetObject(File Size: 64 KB)
+avg,0.023491
+min,0.018407
+p25,0.019950
+p50,0.020023
+p75,0.021106
+p90,0.025737
+p99,0.037164
+max,0.048591
+Memory size: 128, Concurrent number: 1, FileSize: 8.000000
+Stats Metrics,Latency of GetObject(File Size: 128 KB)
+avg,0.112548
+min,0.017940
+p25,0.018509
+p50,0.020025
+p75,0.022079
+p90,0.057793
+p99,0.483068
+max,0.908344
+Memory size: 128, Concurrent number: 1, FileSize: 9.000000
+Stats Metrics,Latency of GetObject(File Size: 256 KB)
+avg,0.038218
+min,0.022114
+p25,0.023669
+p50,0.025616
+p75,0.041594
+p90,0.070716
+p99,0.075527
+max,0.080339
+Memory size: 128, Concurrent number: 1, FileSize: 10.000000
+Stats Metrics,Latency of GetObject(File Size: 512 KB)
+avg,0.041863
+min,0.022857
+p25,0.037204
+p50,0.039706
+p75,0.041527
+p90,0.057252
+p99,0.059589
+max,0.061925
+Memory size: 128, Concurrent number: 1, FileSize: 11.000000
+Stats Metrics,Latency of GetObject(File Size: 1 MB)
+avg,0.143099
+min,0.040046
+p25,0.041064
+p50,0.042810
+p75,0.058672
+p90,0.091628
+p99,0.525390
+max,0.959152
+Memory size: 128, Concurrent number: 1, FileSize: 12.000000
+Stats Metrics,Latency of GetObject(File Size: 2 MB)
+avg,0.063903
+min,0.044984
+p25,0.057201
+p50,0.059808
+p75,0.060210
+p90,0.062371
+p99,0.090767
+max,0.119162
+Memory size: 128, Concurrent number: 1, FileSize: 13.000000
+Stats Metrics,Latency of GetObject(File Size: 4 MB)
+avg,0.135662
+min,0.098016
+p25,0.099757
+p50,0.102534
+p75,0.129219
+p90,0.178221
+p99,0.240410
+max,0.302599
+Memory size: 128, Concurrent number: 1, FileSize: 14.000000
+Stats Metrics,Latency of GetObject(File Size: 8 MB)
+avg,0.196024
+min,0.161243
+p25,0.169906
+p50,0.179771
+p75,0.189358
+p90,0.200090
+p99,0.270932
+max,0.341773
+Memory size: 128, Concurrent number: 1, FileSize: 15.000000
+Stats Metrics,Latency of GetObject(File Size: 16 MB)
+avg,0.364249
+min,0.316858
+p25,0.321690
+p50,0.339676
+p75,0.341680
+p90,0.343356
+p99,0.491161
+max,0.638966
+Memory size: 128, Concurrent number: 1, FileSize: 16.000000
+Stats Metrics,Latency of GetObject(File Size: 32 MB)
+avg,0.728830
+min,0.638729
+p25,0.641647
+p50,0.658198
+p75,0.670071
+p90,0.681551
+p99,1.024259
+max,1.366968

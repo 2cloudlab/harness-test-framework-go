@@ -100,6 +100,11 @@ func getObjectSize(i uint8) string {
 	}
 }
 
+func getObjectSizeInBytes(i uint8) int {
+	s := 1 << (i - 1)
+	return s * 1024
+}
+
 func getReportName(prefix string, key string) string {
 	return fmt.Sprintf("%s/%s", prefix, key)
 }

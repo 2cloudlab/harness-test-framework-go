@@ -1,10 +1,10 @@
 package main
 
 import (
-	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	"os"
 	"runtime"
 	"time"
@@ -37,7 +37,14 @@ func (s3P S3Performancer) Start(ctx context.Context, params EventParams) map[str
 	// We use it to determine the number of operations that will be issued.
 	operationsNumber := params.NumberOfSamples
 	operationResults := make(chan time.Duration, operationsNumber)
+
+	// Memory should be controlled, or it will run out of Lambda memory.
+	memoryNos := make(chan int, params.ConcurrencyForEachTask)
+	memoryBuffers := [][]byte{}
+	objectSizeInBytes := getObjectSizeInBytes(object_level)
 	for g := 0; g < params.ConcurrencyForEachTask; g++ {
+		memoryBuffers = append(memoryBuffers, make([]byte, objectSizeInBytes))
+		memoryNos <- g
 		go func(o <-chan int, results chan<- time.Duration) {
 			for range o {
 				benchmarkTimer := time.Now()
@@ -51,9 +58,20 @@ func (s3P S3Performancer) Start(ctx context.Context, params EventParams) map[str
 					recordError(err)
 					panic("Failed to get object: " + err.Error())
 				}
+				mNo := <-memoryNos
+				i := 0
+				for {
+					m, e := result.Body.Read(memoryBuffers[mNo][i:objectSizeInBytes])
+					if m < 0 {
+						panic("Read negative bytes!")
+					}
+					if e == io.EOF {
+						break
+					}
+					i += m
+				}
 
-				buf := new(bytes.Buffer)
-				buf.ReadFrom(result.Body)
+				memoryNos <- mNo
 				// stop the timer for this benchmark
 				totalTime := time.Now().Sub(benchmarkTimer)
 
