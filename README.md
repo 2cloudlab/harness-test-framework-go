@@ -78,6 +78,16 @@ aws --version
 aws-cli/2.0.36 Python/3.7.4 Darwin/19.6.0 exe/x86_64
 ```
 
+```bash
+// Configure the credentials
+aws configure
+// Enter your credentials according to the prompts
+AWS Access Key ID [None]: <Your Access key ID>
+AWS Secret Access Key [None]: <Your Secret access key>
+Default region name [None]: <Your prefer region name>
+Default output format [None]:
+```
+
 * Clone the framework and prepare dependencies
 
 Only execute the following command at the first time when using Test Harness Framework.
@@ -218,20 +228,31 @@ Before you boost a large number of parallel tasks, you should first run the foll
 make test BUCKET_NAME="<replace-with-your-bucket-name>"
 ```
 
-Wait about 1 second, you should see the following results:
+Wait about 1 second, you should see the something like the following result:
 
 ```bash
 Start ...
-Task "b2df6b6b-3565-4ac8-aa01-515500f0d587" is launched
+Task "6c5c3c9e-d8ce-447f-bb87-a06e1aae01b7" is launched
 Start to wait about 1 minutes ...
-
- ...
-
+get report units from S3, key is 6c5c3c9e-d8ce-447f-bb87-a06e1aae01b7 ...
+worker handler request id is  0da76936-0257-4f29-8d74-f1fe736f1fc5
+worker handler request id is  20f585f3-4ce5-45db-a65b-c3a2c09ac575
+worker handler request id is  71c05671-733b-4554-b9ba-11f379654d31
+worker handler request id is  83345ae4-f1bd-4b10-bb1c-f42ec033be9c
+worker handler request id is  98f3cdfb-3ea6-4d9b-b567-e494b8a11834
+worker handler request id is  b29733cf-e9f7-418d-9981-6e592e069359
+parse headers ...
+aggregate all report units ...
+sort each metrics in descending order ...
+do stats such as mean, p99, min etc. ...
+generate report ...
 Merge reports ...
 End!
 ```
 
 If you can't see the similar results, it means you run into troubles in step 2. The troubles may be your AWS credentials have not permissions to operate AWS S3, Lambda and IAM service or you just give a bucket name that conflits with other. If something unexpected happen, you should fix it before going to next step.
+
+Thie `id` in `worker handler request id is  <id>` is a request id for your performance test, you can search more detail performance metrics, such as Duration and Max memory usage, in Log Stream by providing these ids.
 
 4. Launch Test Harness & collect reports
 

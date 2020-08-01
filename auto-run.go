@@ -75,7 +75,7 @@ func generate_report(prefix []byte, info ReportInfo) ReportFiles {
 	finalReportFiles := ReportFiles{}
 	// get report units from S3
 	prefixInStr := strings.Trim(string(prefix[:]), "\"")
-	fmt.Printf("get report units from S3, key is %s ...", prefixInStr)
+	fmt.Printf("get report units from S3, key is %s ...\n", prefixInStr)
 	report_units := downloadByPrefix(g_bucket_name, prefixInStr)
 	if len(report_units) == 0 {
 		return finalReportFiles

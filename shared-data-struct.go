@@ -139,7 +139,9 @@ var g_s3_downloader *s3manager.Downloader
 var g_lambda_service *lambda.Lambda
 
 func init_shared_resource() {
-	sess := session.New()
+	sess := session.Must(session.NewSessionWithOptions(session.Options{
+		SharedConfigState: session.SharedConfigEnable,
+	}))
 	g_s3_service = s3.New(sess)
 	g_s3_downloader = s3manager.NewDownloader(sess)
 	g_lambda_service = lambda.New(sess)
