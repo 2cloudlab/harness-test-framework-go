@@ -42,9 +42,41 @@ terraform version
 Terraform v0.12.19
 ```
 
-* Install [dep](https://golang.github.io/dep/docs/installation.html).
+* Install [dep](https://golang.github.io/dep/docs/installation.html) according to the following command:
 
-* Install [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2.html) and configure the credentials info
+```bash
+// Install dep
+curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
+```
+
+```bash
+// After install, execute the following command to verify
+dep version
+// The output will be something like that:
+dep:
+ version     : v0.5.4
+ build date  : 2019-07-01
+ git hash    : 1f7c19e
+ go version  : go1.12.6
+ go compiler : gc
+ platform    : darwin/amd64
+ features    : ImportDuringSolve=false
+```
+
+* Install [Python](https://www.python.org/downloads/) and [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2.html)(use it to configure the credentials info)
+
+```bash
+// Install AWS CLI on MAC
+$ curl "https://awscli.amazonaws.com/AWSCLIV2.pkg" -o "AWSCLIV2.pkg"
+$ sudo installer -pkg AWSCLIV2.pkg -target /
+```
+
+```bash
+// After install, execute the following command to verify
+aws --version
+// The output will be something like that:
+aws-cli/2.0.36 Python/3.7.4 Darwin/19.6.0 exe/x86_64
+```
 
 * Clone the framework and prepare dependencies
 
