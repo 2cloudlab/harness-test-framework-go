@@ -26,7 +26,7 @@ And the corresponding visualization version is shown below:
 
 ## Prerequisites
 
-Before you use the framework, please install the following tools on top of **Linux OS**, and pay attention to their versions.
+Before you use the framework, please install the following tools on top of **Linux OS** or **Mac OS**, and pay attention to their versions.
 
 * Install Go, and make sure its version is at least `v1.14`. After successfully install, type the following command to make sure you are on the right version:
 
