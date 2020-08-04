@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	"io/ioutil"
+	"os"
 	"strings"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -137,6 +139,23 @@ func downloadByPrefix(bucket string, prefix string) [][]byte {
 		results = append(results, downloadFile(bucket, *item.Key))
 	}
 	return results
+}
+
+func readFile(fileName string) ([]byte, error) {
+	// Open an file by fieName
+	jsonFile, err := os.Open(fileName)
+	// if we os.Open returns an error then handle it
+	if err != nil {
+		fmt.Println(err)
+		return []byte{}, err
+	}
+	// Read our opened file as a byte array.
+	byteValue, err := ioutil.ReadAll(jsonFile)
+	if err != nil {
+		fmt.Println(err)
+		return []byte{}, err
+	}
+	return byteValue, nil
 }
 
 var g_s3_service *s3.S3

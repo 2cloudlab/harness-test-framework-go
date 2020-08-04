@@ -6,7 +6,6 @@ import (
 	"flag"
 	"fmt"
 	"io/ioutil"
-	"os"
 	"sort"
 	"strings"
 	"time"
@@ -261,23 +260,13 @@ func main() {
 			EventParams{NumberOfTasks: 6, LambdaFunctionName: "worker-handler", TaskName: "DefaultPerformancer"},
 		}
 	} else {
-		// Open our jsonFile
-		jsonFile, err := os.Open("config.json")
-		// if we os.Open returns an error then handle it
-		if err != nil {
-			fmt.Println(err)
-			return
-		}
-		// read our opened jsonFile as a byte array.
-		byteValue, err := ioutil.ReadAll(jsonFile)
+		bytesValue, err := readFile("config.json")
 		if err != nil {
 			fmt.Println(err)
 			return
 		}
 
-		// we unmarshal our byteArray which contains our
-		// jsonFile's content into 'users' which we defined above
-		json.Unmarshal(byteValue, &params)
+		json.Unmarshal(bytesValue, &params)
 		for i := 0; i < len(params); i++ {
 			params[i].LambdaFunctionName = "worker-handler"
 		}

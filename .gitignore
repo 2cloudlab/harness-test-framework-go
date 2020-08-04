@@ -1,4 +1,5 @@
 vendor/
+.vendor-new/
 .DS_Store
 *.zip
 .terraform/
