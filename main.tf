@@ -17,6 +17,11 @@ locals {
   region_name                = "${data.aws_region.current.name}"
   time_out_in_second         = 900
   test_harness_function_name = "test-harness-framework"
+  _worker_handler_config_object = jsondecode(file("worker-handler-config.json"))
+  worker_handlers_function_name = {
+    for i in range(local._worker_handler_config_object["MinFunctionMemoryInMB"],local._worker_handler_config_object["MaxFunctionMemoryInMB"]+1,local._worker_handler_config_object["IncreaseMemoryByInMB"]):
+    format("%d", i) => format("%s-%d", local._worker_handler_config_object["FunctionNamePrefix"], i)
+  }
   policy_for_test_harness    = <<POLICY
 {
     "Version": "2012-10-17",
@@ -62,7 +67,7 @@ POLICY
                 "logs:PutLogEvents"
             ],
             "Resource": [
-                "arn:aws:logs:${local.region_name}:${local.account_id}:log-group:/aws/lambda/${var.worker_handler_zip_file}:*"
+                "arn:aws:logs:${local.region_name}:${local.account_id}:log-group:/aws/lambda/${var.worker_handler_zip_file}*:*"
             ]
         },
         {
@@ -119,7 +124,7 @@ resource "aws_lambda_function" "test_harness_lambda" {
   role          = aws_iam_role.role_for_test_harness.arn
   handler       = local.test_harness_function_name
   timeout       = local.time_out_in_second
-  memory_size   = var.memory_size_in_MB
+  memory_size   = 128
 
   # The filebase64sha256() function is available in Terraform 0.11.12 and later
   # For Terraform 0.11.11 and earlier, use the base64sha256() function and the file() function:
@@ -166,12 +171,13 @@ resource "aws_iam_role_policy_attachment" "policy_role_attach_for_worker_handler
 # create worker handler Lambda Function
 
 resource "aws_lambda_function" "worker_handler_lambda" {
+  for_each = local.worker_handlers_function_name
   filename      = "${var.worker_handler_zip_file}.zip"
-  function_name = var.worker_handler_zip_file
+  function_name = each.value
   role          = aws_iam_role.role_for_worker_handler.arn
   handler       = var.worker_handler_zip_file
   timeout       = local.time_out_in_second
-  memory_size   = var.memory_size_in_MB
+  memory_size   = tonumber(each.key)
 
   # The filebase64sha256() function is available in Terraform 0.11.12 and later
   # For Terraform 0.11.11 and earlier, use the base64sha256() function and the file() function:
@@ -185,7 +191,7 @@ resource "aws_lambda_function" "worker_handler_lambda" {
   }
 
   # check out the detail runtime from here https://docs.aws.amazon.com/lambda/latest/dg/API_CreateFunction.html#SSS-CreateFunction-request-Runtime
-  runtime = "go1.x"
+  runtime = var.worker_runtime
 }
 
 resource "aws_s3_bucket" "b" {

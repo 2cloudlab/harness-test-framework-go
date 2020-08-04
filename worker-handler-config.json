@@ -1,0 +1,6 @@
+{
+    "FunctionNamePrefix" : "worker-handler",
+    "MaxFunctionMemoryInMB" : 3008,
+    "IncreaseMemoryByInMB" : 64,
+    "MinFunctionMemoryInMB" : 128
+}

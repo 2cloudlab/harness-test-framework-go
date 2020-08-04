@@ -267,26 +267,29 @@ func main() {
 		}
 
 		json.Unmarshal(bytesValue, &params)
-		for i := 0; i < len(params); i++ {
-			params[i].LambdaFunctionName = "worker-handler"
-		}
 	}
 
 	fmt.Println("Start ...")
 	results := [][]byte{}
+	worker_handlers := map[string]interface{}{}
+	bytesValue, _ := readFile("worker-handler-config.json")
+	json.Unmarshal(bytesValue, &worker_handlers)
 	for _, p := range params {
-		payLoadInJson, _ := json.Marshal(p)
-		input := &lambda.InvokeInput{
-			FunctionName: aws.String("test-harness-framework"),
-			Payload:      payLoadInJson,
+		for i := int(worker_handlers["MinFunctionMemoryInMB"].(float64)); i <= int(worker_handlers["MaxFunctionMemoryInMB"].(float64)); i += int(worker_handlers["IncreaseMemoryByInMB"].(float64)) {
+			p.LambdaFunctionName = fmt.Sprintf("%s-%d", worker_handlers["FunctionNamePrefix"], i)
+			payLoadInJson, _ := json.Marshal(p)
+			input := &lambda.InvokeInput{
+				FunctionName: aws.String("test-harness-framework"),
+				Payload:      payLoadInJson,
+			}
+			result, err := g_lambda_service.Invoke(input)
+			if err != nil {
+				recordError(err)
+				continue
+			}
+			fmt.Println(fmt.Sprintf("Task %s is launched", string(result.Payload[:])))
+			results = append(results, result.Payload)
 		}
-		result, err := g_lambda_service.Invoke(input)
-		if err != nil {
-			recordError(err)
-			continue
-		}
-		fmt.Println(fmt.Sprintf("Task %s is launched", string(result.Payload[:])))
-		results = append(results, result.Payload)
 	}
 
 	// wait after timeToWaitArg minutes to begin collect reports

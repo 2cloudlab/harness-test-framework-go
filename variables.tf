@@ -9,8 +9,8 @@ variable "bucket_name" {
   type        = string
 }
 
-variable "memory_size_in_MB" {
+variable "worker_runtime" {
   description = ""
-  type        = number
-  default     = 128
+  type        = string
+  default     = "go1.x"
 }
