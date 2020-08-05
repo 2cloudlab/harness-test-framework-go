@@ -206,7 +206,7 @@ make build
 
 2. Provision Infrustructure
 
-This framework will provision 3 types of resources, such as S3, Worker Handler Lambda functions and Test Harness Framework Lambda function. before you run below command, you should open `worker-handler-config.json`file, and tune the memory related parameters in order to determine how many Worker Handler Lambda functions will be created. The default content of this `json` file is shown below, you should only modify parameters `MinFunctionMemoryInMB` and `MaxFunctionMemoryInMB`. If you want to create 1 Worker Handler Lambda function whose memory is 128MB, you just change `MaxFunctionMemoryInMB` from 3008 to 128. If you want to create 3 Worker Handler Lambda functions whose memory size is 1664MB, 1728MB , 1792MB, you just update `MinFunctionMemoryInMB` to 1664 and `MaxFunctionMemoryInMB` to 1792.
+This framework will provision 3 types of resources, such as a S3, multiples Worker Handler Lambda functions and a Test Harness Framework Lambda function. Before you run below `make auto_provision ...` command, you should open `worker-handler-config.json`file, and tune the memory related parameters in order to determine how many Worker Handler Lambda functions will be created. The default content of this `json` file is shown below:
 
 ```json
 {
@@ -217,7 +217,9 @@ This framework will provision 3 types of resources, such as S3, Worker Handler L
 }
 ```
 
-After tuning the parameter in `worker-handler-config.json` file, execute the following command to provision infrastructures:
+You should only modify parameters `MinFunctionMemoryInMB` and `MaxFunctionMemoryInMB`. If you want to create 1 Worker Handler Lambda function with memory size: 128MB, you just change `MaxFunctionMemoryInMB` from 3008 to 128. If you want to create 3 Worker Handler Lambda functions whose memory size is 1664MB, 1728MB , 1792MB respectively, you just update `MinFunctionMemoryInMB` to 1664 and `MaxFunctionMemoryInMB` to 1792.
+
+After tuning the parameters in `worker-handler-config.json` file, execute the following command to provision infrastructures:
 
 ```bash
 make auto_provision BUCKET_NAME="<replace-with-your-bucket-name>"
