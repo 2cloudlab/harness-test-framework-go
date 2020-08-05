@@ -206,7 +206,18 @@ make build
 
 2. Provision Infrustructure
 
-Execute the following command to provision infrastructures:
+This framework will provision 3 types of resources, such as S3, Worker Handler Lambda functions and Test Harness Framework Lambda function. before you run below command, you should open `worker-handler-config.json`file, and tune the memory related parameters in order to determine how many Worker Handler Lambda functions will be created. The default content of this `json` file is shown below, you should only modify parameters `MinFunctionMemoryInMB` and `MaxFunctionMemoryInMB`. If you want to create 1 Worker Handler Lambda function whose memory is 128MB, you just change `MaxFunctionMemoryInMB` from 3008 to 128. If you want to create 3 Worker Handler Lambda functions whose memory size is 1664MB, 1728MB , 1792MB, you just update `MinFunctionMemoryInMB` to 1664 and `MaxFunctionMemoryInMB` to 1792.
+
+```json
+{
+    "FunctionNamePrefix" : "worker-handler",
+    "MaxFunctionMemoryInMB" : 3008,
+    "IncreaseMemoryByInMB" : 64,
+    "MinFunctionMemoryInMB" : 128
+}
+```
+
+After tuning the parameter in `worker-handler-config.json` file, execute the following command to provision infrastructures:
 
 ```bash
 make auto_provision BUCKET_NAME="<replace-with-your-bucket-name>"
@@ -214,7 +225,7 @@ make auto_provision BUCKET_NAME="<replace-with-your-bucket-name>"
 
 After successfully provisioning infrastructures, you should wait a few minutes before AWS can make these resources available to you.
 
-3. Test deployment
+1. Test deployment
 
 Before you boost a large number of parallel tasks, you should first run the following command to validate the created resources are ready.
 
