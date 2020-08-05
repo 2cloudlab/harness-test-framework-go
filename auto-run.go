@@ -257,7 +257,7 @@ func main() {
 	var params []EventParams
 	if *testDeploymentArg {
 		params = []EventParams{
-			EventParams{NumberOfTasks: 6, LambdaFunctionName: "worker-handler", TaskName: "DefaultPerformancer"},
+			EventParams{NumberOfTasks: 1, TaskName: "DefaultPerformancer"},
 		}
 	} else {
 		bytesValue, err := readFile("config.json")
@@ -269,27 +269,34 @@ func main() {
 		json.Unmarshal(bytesValue, &params)
 	}
 
-	fmt.Println("Start ...")
-	results := [][]byte{}
+	paramsInFly := []EventParams{}
 	worker_handlers := map[string]interface{}{}
 	bytesValue, _ := readFile("worker-handler-config.json")
 	json.Unmarshal(bytesValue, &worker_handlers)
-	for _, p := range params {
-		for i := int(worker_handlers["MinFunctionMemoryInMB"].(float64)); i <= int(worker_handlers["MaxFunctionMemoryInMB"].(float64)); i += int(worker_handlers["IncreaseMemoryByInMB"].(float64)) {
-			p.LambdaFunctionName = fmt.Sprintf("%s-%d", worker_handlers["FunctionNamePrefix"], i)
-			payLoadInJson, _ := json.Marshal(p)
-			input := &lambda.InvokeInput{
-				FunctionName: aws.String("test-harness-framework"),
-				Payload:      payLoadInJson,
-			}
-			result, err := g_lambda_service.Invoke(input)
-			if err != nil {
-				recordError(err)
-				continue
-			}
-			fmt.Println(fmt.Sprintf("Task %s is launched", string(result.Payload[:])))
-			results = append(results, result.Payload)
+	for i := int(worker_handlers["MinFunctionMemoryInMB"].(float64)); i <= int(worker_handlers["MaxFunctionMemoryInMB"].(float64)); i += int(worker_handlers["IncreaseMemoryByInMB"].(float64)) {
+		for _, p := range params {
+			paramsInFly = append(paramsInFly, p)
+			paramsInFly[len(paramsInFly)-1].LambdaFunctionName = fmt.Sprintf("%s-%d", worker_handlers["FunctionNamePrefix"], i)
 		}
+	}
+
+	fmt.Println("Start ...")
+	results := [][]byte{}
+
+	for _, p := range paramsInFly {
+		fmt.Println(p.LambdaFunctionName)
+		payLoadInJson, _ := json.Marshal(p)
+		input := &lambda.InvokeInput{
+			FunctionName: aws.String("test-harness-framework"),
+			Payload:      payLoadInJson,
+		}
+		result, err := g_lambda_service.Invoke(input)
+		if err != nil {
+			recordError(err)
+			continue
+		}
+		fmt.Println(fmt.Sprintf("Task %s is launched", string(result.Payload[:])))
+		results = append(results, result.Payload)
 	}
 
 	// wait after timeToWaitArg minutes to begin collect reports
@@ -299,8 +306,8 @@ func main() {
 	// generate reports
 	reports := []ReportFiles{}
 	for idx, item := range results {
-		fc := getFunctionConfigByName(params[idx].LambdaFunctionName)
-		info := ReportInfo{ProfileName: params[idx].TaskName, MemorySizeInMB: *fc.MemorySize, ConcurrentNumber: params[idx].ConcurrencyForEachTask, RawJson: params[idx].RawJson}
+		fc := getFunctionConfigByName(paramsInFly[idx].LambdaFunctionName)
+		info := ReportInfo{ProfileName: paramsInFly[idx].TaskName, MemorySizeInMB: *fc.MemorySize, ConcurrentNumber: paramsInFly[idx].ConcurrencyForEachTask, RawJson: paramsInFly[idx].RawJson}
 		reports = append(reports, generate_report(item, info))
 	}
 
