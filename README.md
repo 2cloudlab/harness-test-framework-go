@@ -206,7 +206,7 @@ make build
 
 2. Provision Infrustructure
 
-This framework will provision 3 types of resources, such as a S3, multiples Worker Handler Lambda functions and a Test Harness Framework Lambda function. Before you run below `make auto_provision ...` command, you should open `worker-handler-config.json`file, and tune the memory related parameters in order to determine how many Worker Handler Lambda functions will be created. The default content of this `json` file is shown below:
+This framework will provision 3 types of resources, such as a S3, multiple Worker Handler Lambda functions and a Test Harness Framework Lambda function. Before you run below `make auto_provision ...` command, you should open `worker-handler-config.json`file, and tune the memory related parameters in order to determine how many Worker Handler Lambda functions will be created. The default content of this `json` file is shown below:
 
 ```json
 {
