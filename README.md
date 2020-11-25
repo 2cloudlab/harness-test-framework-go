@@ -227,7 +227,7 @@ make auto_provision BUCKET_NAME="<replace-with-your-bucket-name>"
 
 After successfully provisioning infrastructures, you should wait a few minutes before AWS can make these resources available to you.
 
-1. Test deployment
+3. Test deployment
 
 Before you boost a large number of parallel tasks, you should first run the following command to validate the created resources are ready.
 
